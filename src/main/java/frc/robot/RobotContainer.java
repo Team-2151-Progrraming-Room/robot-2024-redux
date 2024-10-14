@@ -36,7 +36,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-        // we support all drive modes - any inversion of the joysticks happens in the drivetrain code
+    // we support all drive modes - any inversion of the joysticks happens in the drivetrain code
     m_drivetrainSubsystem.setDefaultCommand(
         Commands.run(
             () -> m_drivetrainSubsystem.driveInputs(m_driverController.getLeftY(),

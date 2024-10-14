@@ -70,7 +70,7 @@ public final class Constants {
     public static final int kDriveTank         = 1;
     public static final int kDriveCurvature    = 2;
 
-    public static final int kDriveType         = kDriveTank;
+    public static final int kDriveType         = kDriveArcade;
 
     public static final boolean kDriveSqInputs = true;
 

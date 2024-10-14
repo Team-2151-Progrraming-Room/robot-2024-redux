@@ -190,8 +190,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     public void drive(double val1, double val2, int driveType) {
 
-      System.out.println("drive(" + val1 + ", " + val2 + ", " + driveType +")");
-
       switch(driveType) {
         
         case DrivetrainConstants.kDriveArcade:
@@ -302,7 +300,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void driveInputs(double leftY, double rightY, double rightX) {
     
-    System.out.println("driveInputs(" + leftY + ", " + rightY + ", " + rightX + ")");
     leftY  *= -1;     // invert since it returns negative for forward
     rightY *= -1;
 

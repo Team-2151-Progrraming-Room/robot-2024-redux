@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.DoubleSupplier;
 
 
-public class DefaultDrive extends Command {
+public class DefaultDriveCommand extends Command {
   private final DriveSubsystem m_drive;
   private final DoubleSupplier m_leftY;
   private final DoubleSupplier m_rightY;
@@ -25,7 +25,7 @@ public class DefaultDrive extends Command {
    * 
    * That way we can get all pertinent control input and handle all drive modes for experimentation by the drive team
    */
-  public DefaultDrive(DriveSubsystem subsystem, DoubleSupplier leftY, DoubleSupplier rightY, DoubleSupplier rightX) {
+  public DefaultDriveCommand(DriveSubsystem subsystem, DoubleSupplier leftY, DoubleSupplier rightY, DoubleSupplier rightX) {
     m_drive = subsystem;
 
     m_leftY = leftY;
