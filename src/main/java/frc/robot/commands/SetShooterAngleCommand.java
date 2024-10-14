@@ -11,38 +11,48 @@ package frc.robot.commands;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
+import edu.wpi.first.units.*;
+import static edu.wpi.first.units.Units.*;
+
+
+
 public class SetShooterAngleCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem m_subsystem;
+
+  private Measure<Distance> m_range;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public SetShooterAngleCommand(ShooterSubsystem Shooter) {
+  public SetShooterAngleCommand(ShooterSubsystem Shooter, Measure<Distance> range) {
+
     m_subsystem = Shooter;
-    // Use addRequirements() here to declare subsystem dependencies.
+
+    m_range = range;
+
     addRequirements(Shooter);
   }
 
-  // Called when the command is initially scheduled.
+
   @Override
   public void initialize() {
-    m_subsystem.setShooterAngleByMetersDistance(10.0);
-    System.out.println("PASS TARGET RANGE TO \".setShooterAngleByMetersDistance()\" in \"SetShooterAngleCommand\"");
+
+    m_subsystem.setShooterAngleByRange(m_range);
+    System.out.println("PASS TARGET RANGE TO \".setShooterAngleByRange(" + m_range.in(Meters) + " (meters))\" in \"SetShooterAngleCommand\"");
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
+
   @Override
   public void execute() {}
 
-  // Called once the command ends or is interrupted.
+
   @Override
   public void end(boolean interrupted) {}
 
-  // Returns true when the command should end.
+
   @Override
   public boolean isFinished() {
     return true;

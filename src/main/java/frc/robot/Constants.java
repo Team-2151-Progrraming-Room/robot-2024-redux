@@ -29,6 +29,8 @@ public final class Constants {
     public static final Measure<Distance> kBumperWidth = Inches.of(6);  // how think are the bumpers?
 
     public static final Measure<Voltage> kRobotNomVoltage = Volts.of(12.0);  // nominal voltage
+
+    public static final double kNeoMaxRpm = 5700;   // used for FF scaling for shooter and other applications
   }
 
   public static class FieldConstants {
@@ -68,7 +70,7 @@ public final class Constants {
     public static final int kDriveTank         = 1;
     public static final int kDriveCurvature    = 2;
 
-    public static final int kDriveType         = kDriveArcade;
+    public static final int kDriveType         = kDriveTank;
 
     public static final boolean kDriveSqInputs = true;
 
@@ -89,21 +91,34 @@ public final class Constants {
 
   public static class ShooterConstants {
  
-    public static final int kKickerMotor_CANID   = 20;
-    public static final int kShooterMotor_CANID  = 21;
+    public static final int kKickerMotor_CANID      = 20;
+    public static final int kShooterMotor_CANID     = 21;
     
-    public static final int kShooterShootSpeed   = 1000;      // RPM - set low for test setup beacsue all we want is to see them run
-    public static final int kKickerSpeed         = 500;
+    public static final int kKickerSpeed            = 500;
 
-    public static final double kPidP             = 0.5;       // would need to be tuned
-    public static final double kPidI             = 0.0;
-    public static final double kPidD             = 0.0;
-    public static final double kPidFF            = 0.0;
-    public static final double kPidIzone         = 0.0;
-    public static final double kPidOutputMin     = 0.0;       // don't need to run in reverese (negative value)
-    public static final double kPidOutputMax     = 0.3;       // low to prevent test rig damage
+    public static final double kShooterPidP         = 0.5;       // will need to be tuned
+    public static final double kShooterPidI         = 0.0;
+    public static final double kShooterPidD         = 0.0;
+    public static final double kShooterPidFF        = 0.0;
+    public static final double kShooterPidIzone     = 0.0;
+    public static final double kShooterPidOutputMin = 0.0;       // don't need to run in reverse (negative value)
+    public static final double kShooterPidOutputMax = 1.0;
 
-    public static final Measure<Time> kShooterRunTime = Seconds.of(5);         // how long the shooter runs after shooting
+    public static final double kShooterFfRatio      = 0.9;       // used to calc FF for varying shooting speeds
+
+    public static final double kShooterSpeedTolerance = 25.0;    // +/- tolerance in RPM
+    public static final double kShooterAngleTolerance = 2.0;     // +/- tolerance in degrees
+
+    public static final Measure<Distance> kMinShootRange = Meters.of(1.0);
+    public static final Measure<Distance> kMaxShootRange = Meters.of(12.0);
+
+
+    // both of the below are timesouts for the shooting related commands
+
+    public static final Measure<Time> kShooterRunTime = Seconds.of(5);         // how long the shooter motor runs during the shooting sequence
+
+    public static final Measure<Time> kKickerRunTime  = Seconds.of(3);         // how long the kicker motor runs during the shooting sequence
+
   }
 
 }

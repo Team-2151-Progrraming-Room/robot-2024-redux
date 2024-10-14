@@ -1,22 +1,24 @@
-// StartShooterKickerCommand
-//
-// All we have to do is start the shooter kicked in the intialization routine and return true
-// from as finished because we are finished after that
+// High-level shooter commands
 
 package frc.robot.commands;
 
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
+import edu.wpi.first.units.*;
+import static edu.wpi.first.units.Units.*;
 
 
-public class StartShooterKickerCommand extends Command {
+public class ShootCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem m_subsystem;
 
-
-
-  public StartShooterKickerCommand(ShooterSubsystem Shooter) {
+  /**
+   * Creates a new ExampleCommand.
+   *
+   * @param subsystem The subsystem used by this command.
+   */
+  public ShootCommand(ShooterSubsystem Shooter, Measure<Distance> range) {
     m_subsystem = Shooter;
 
     addRequirements(Shooter);
@@ -25,7 +27,9 @@ public class StartShooterKickerCommand extends Command {
 
   @Override
   public void initialize() {
-    m_subsystem.kickerMotorOn();
+
+    m_subsystem.setShooterAngleByRange(Meters.of(10.0));
+    System.out.println("PASS TARGET RANGE TO \".setShooterAngleByRange()\" in \"SetShooterAngleCommand\"");
   }
 
 

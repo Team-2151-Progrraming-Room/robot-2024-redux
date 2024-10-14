@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.DoubleSupplier;
 
 // simulation-related
 
@@ -58,7 +59,7 @@ import frc.robot.Constants.FieldConstants;
 // the first comment in the definition is picked up and displayed as information about this objecty when you
 // hover over it in the editor
 
-public class Drivetrain extends SubsystemBase {
+public class DriveSubsystem extends SubsystemBase {
 
 /**
  * The Drivetrain subsystem provides all of the methods for driving the robot
@@ -125,7 +126,7 @@ public class Drivetrain extends SubsystemBase {
 
 
 
-    public Drivetrain() {
+    public DriveSubsystem() {
 
         // in general, it's a good idea to set the controller options to WHAT WE WANT
         //
@@ -189,8 +190,7 @@ public class Drivetrain extends SubsystemBase {
 
     public void drive(double val1, double val2, int driveType) {
 
-      // String output = "drive(" + val1 + ", " + val2 + ", " + driveType +")";
-      // System.out.println(output);
+      System.out.println("drive(" + val1 + ", " + val2 + ", " + driveType +")");
 
       switch(driveType) {
         
@@ -242,34 +242,6 @@ public class Drivetrain extends SubsystemBase {
           break;
         }
     }
-
-
-
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
-  }
-
-
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
 
 
 
@@ -328,29 +300,21 @@ public class Drivetrain extends SubsystemBase {
   }
 
 
-  public void driveInputs(CommandXboxController controller) {
-
-    double leftY, rightX, rightY;   // we don't get leftX since none of the supported drive modes for now need it - saves a litle time
-
-    // we always need the leftY value so we'll get it unconditionally
-    //
-    // we only get the right values for the specific drive mode that needs them to save a little time
+  public void driveInputs(double leftY, double rightY, double rightX) {
     
-    leftY = -controller.getLeftY();     // invert since it returns negative for forward
+    System.out.println("driveInputs(" + leftY + ", " + rightY + ", " + rightX + ")");
+    leftY  *= -1;     // invert since it returns negative for forward
+    rightY *= -1;
 
     switch (DrivetrainConstants.kDriveType) {
 
       case DrivetrainConstants.kDriveArcade:    // both are handled the same
       case DrivetrainConstants.kDriveCurvature:
 
-        rightX = controller.getRightX();
-
         drive(leftY, rightX, DrivetrainConstants.kDriveType);
         break;
 
       case DrivetrainConstants.kDriveTank:
-
-        rightY = -controller.getRightY();   // invert
 
         drive(leftY, rightY, DrivetrainConstants.kDriveType);
         break;
@@ -383,7 +347,9 @@ public class Drivetrain extends SubsystemBase {
   // robot on the field
   //
   // WARNING:  Every time a collision is detected, a new pose is returned which will need to be reaped by
-  // the garbage collector
+  // the garbage collector - in general, this approach doesn't seem like the best way and maybe we shoudl just not
+  // drive the robot off the field as there is more to it than just the pose - need to consider the impact on
+  // odometry for example - do we need to "back out" or otherwise adjust the odometry readings?
 
   private Pose2d collisionCheck(Pose2d inPose) {
 

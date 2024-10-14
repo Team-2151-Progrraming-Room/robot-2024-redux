@@ -7,10 +7,11 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -22,20 +23,26 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final ExampleSubsystem m_exampleSubsystem       = new ExampleSubsystem();
 
-  public  final Drivetrain m_drivetrain = new Drivetrain();
+  public  final DriveSubsystem m_drivetrainSubsystem      = new DriveSubsystem();
 
-  private final ShooterSubsystem    m_shooter    = new ShooterSubsystem();
+  private final ShooterSubsystem m_shooter                = new ShooterSubsystem();
   
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  public final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  public final CommandXboxController m_driverController   = new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+        // we support all drive modes - any inversion of the joysticks happens in the drivetrain code
+    m_drivetrainSubsystem.setDefaultCommand(
+        Commands.run(
+            () -> m_drivetrainSubsystem.driveInputs(m_driverController.getLeftY(),
+                                                    m_driverController.getRightY(),
+                                                    m_driverController.getRightX()),
+                                                    m_drivetrainSubsystem));
   }
 
   /**
@@ -48,6 +55,9 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+
+    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));

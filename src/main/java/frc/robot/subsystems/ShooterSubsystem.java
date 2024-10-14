@@ -4,10 +4,11 @@ import edu.wpi.first.math.*;
 import edu.wpi.first.math.MathUtil;
 
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotController;
+
 import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
 
-import javax.naming.directory.InvalidSearchFilterException;
 
 // simulation-related
 
@@ -49,16 +50,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax m_shooterMotor = new CANSparkMax(ShooterConstants.kShooterMotor_CANID, MotorType.kBrushless);
     private final CANSparkMax m_kickerMotor  = new CANSparkMax(ShooterConstants.kKickerMotor_CANID,  MotorType.kBrushless);
 
-
     private SparkPIDController m_shooterPidController;
-    private double             m_shooterPidP;
-    private double             m_shooterPidI;
-    private double             m_shooterPidD;
-    private double             m_shooterPidIzone;
-    private double             m_shooterPidFF;
-    private double             m_shooterPidOutputMax;
-    private double             m_shooterPidOutputMin;
-    private double             m_shooterPidSetPoint = 0;
+    private double m_shooterPidFF = 0.0;
     
     private RelativeEncoder m_shooterEncoder;
 
@@ -72,14 +65,21 @@ public class ShooterSubsystem extends SubsystemBase {
     // we use the value passed if we find it, otherwise we use the value just below up to the next value
     //
     // table is arranged so the distance, in meters, is the first entry and the speed or angle is the second entry
-    private double[][] m_shooterSpeedTable = { {5.0, 1000.0}, {10.0, 1500.0},           {15.0, 2000.0},             {20.0, 2500.0} };
-    private double[][] m_shooterAngleTable = { {5.0, 45.0},   {10.0, 40}, {12.0, 35.0}, {15.0, 31.0}, {17.0, 28.0}, {20.0, 25.0} };
+    //
+    // note that in this example, the tables could be different sizes if the speed or angle covered different ranges
+    //
+    // the tables could have different distance entries if speed and angle don't map use or need the same range values
+    // for changes in angle and speed
+    //
+    // all of this would need to be worked out emperically through actual robot testing to work out exactly how our
+    // shooter works in terms of speds and angles for different distances
 
-    private double m_shooterAngleDegreesTarget;
-    private double m_shooterAngleDegreesTolerance = 1.0;   // degree tolerance that is OK
+    private double[][] m_shooterSpeedTable = { {5.0, 1000.0}, {7.5, 1500.0},          {9.5, 2000.0},              {ShooterConstants.kMaxShootRange.in(Meters), 2500.0} };
+    private double[][] m_shooterAngleTable = { {5.0, 45.0},   {7.5, 40}, {8.5, 35.0}, {9.5, 31.0}, {10.5, 28.0},  {ShooterConstants.kMaxShootRange.in(Meters), 25.0} };
 
-    private double m_shooterRpmTarget;
-    private double m_shooterRpmTolerance = 20;        // + / - this RPM is OK
+    private double m_shooterAngleDegreesTarget = 0.0;;
+
+    private double m_shooterRpmTarget          = 0.0;
 
 
 
@@ -95,31 +95,25 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_shooterPidController = m_shooterMotor.getPIDController();
 
-        m_shooterPidController.setP(ShooterConstants.kPidP);
-        m_shooterPidController.setI(ShooterConstants.kPidI);
-        m_shooterPidController.setD(ShooterConstants.kPidD);
-        m_shooterPidController.setIZone(ShooterConstants.kPidIzone);
-        m_shooterPidController.setFF(ShooterConstants.kPidFF);
-        m_shooterPidController.setOutputRange(ShooterConstants.kPidOutputMin, ShooterConstants.kPidOutputMax);
-
-        m_shooterPidSetPoint = 0;
+        m_shooterPidController.setP(ShooterConstants.kShooterPidP);
+        m_shooterPidController.setI(ShooterConstants.kShooterPidI);
+        m_shooterPidController.setD(ShooterConstants.kShooterPidD);
+        m_shooterPidController.setIZone(ShooterConstants.kShooterPidIzone);
+        m_shooterPidController.setOutputRange(ShooterConstants.kShooterPidOutputMin, ShooterConstants.kShooterPidOutputMax);
+        m_shooterPidController.setReference(m_shooterRpmTarget, CANSparkMax.ControlType.kVelocity);
 
         // display PID coefficients on SmartDashboard
-        SmartDashboard.putNumber("Shooter Set Point", m_shooterPidSetPoint);
+        SmartDashboard.putNumber("Shooter Set Point", m_shooterRpmTarget);
         SmartDashboard.putNumber("Shooter Actual RPM", 0.0);
-        SmartDashboard.putNumber("Shooter P Gain", ShooterConstants.kPidP);
-        SmartDashboard.putNumber("Shooter I Gain", ShooterConstants.kPidI);
-        SmartDashboard.putNumber("Shooter D Gain", ShooterConstants.kPidD);
-        SmartDashboard.putNumber("Shooter I Zone", ShooterConstants.kPidIzone);
-        SmartDashboard.putNumber("Shooter Feed Forward", ShooterConstants.kPidFF);
-        SmartDashboard.putNumber("Shooter Max Output", ShooterConstants.kPidOutputMax);
-        SmartDashboard.putNumber("Shooter Min Output", ShooterConstants.kPidOutputMin);
+        SmartDashboard.putNumber("Shooter P Gain", ShooterConstants.kShooterPidP);
+        SmartDashboard.putNumber("Shooter I Gain", ShooterConstants.kShooterPidI);
+        SmartDashboard.putNumber("Shooter D Gain", ShooterConstants.kShooterPidD);
+        SmartDashboard.putNumber("Shooter I Zone", ShooterConstants.kShooterPidIzone);
+        SmartDashboard.putNumber("Shooter Feed Forward", ShooterConstants.kShooterPidFF);
+        SmartDashboard.putNumber("Shooter Max Output", ShooterConstants.kShooterPidOutputMax);
+        SmartDashboard.putNumber("Shooter Min Output", ShooterConstants.kShooterPidOutputMin);
 
         m_shooterEncoder = m_shooterMotor.getEncoder();
-
-        setShooterSpeedByMetersDistance(1.0);
-        setShooterSpeedByMetersDistance(12.0);
-        setShooterSpeedByMetersDistance(22.0);
 
         if ( ! Robot.isReal()) {                        // setup things for the simulation as needed
         
@@ -127,56 +121,75 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
 
+
     // set the shooter for the passed distance
     //
     // this includes setting the shooter speed and the angle
     //
-    // for the 2024 robot, this doesn't matter and won't really do anything but if we could set the angle,
-    // we'd do something like this
+    // for the 2024 robot, this doesn't matter and won't really do anything in terms of shooting angle
+    // but if we could set the angle, we'd probably do something like this
 
-    public void setShooterMetersDistance(double distance) {
+    public void setShooterRange(Measure<Distance> range) {
 
-      setShooterSpeedByMetersDistance(distance);
-      setShooterAngleByMetersDistance(distance);;
-
+      setShooterSpeedByRange(range);
+      setShooterAngleByRange(range);
     }
 
 
 
     // set the shooter speed based on the target distance
-    public void setShooterSpeedByMetersDistance(double distance) {
+    public void setShooterSpeedByRange(Measure<Distance> range) {
 
-      System.out.println("setShooterSpeed(" + distance + ") = " + lookupByValue(distance, m_shooterSpeedTable));
+      m_shooterRpmTarget = lookupByValue(range.in(Meters), m_shooterSpeedTable);
 
+      // for the FF factor, we take a look at the percentage the lookup take gave us compared to the NEO
+      // max speed (which would be a setting of 1.0) and take 90% of that as our feedforward
+      //
+      // we also take the robot voltage into account and adjust the ratio so we don't underspeed as the battery drops
+
+      m_shooterPidFF = calcFfByRpm(m_shooterRpmTarget);
+
+      // the code below should start the shooter spinning
+      m_shooterPidController.setFF(m_shooterPidFF);
+      m_shooterPidController.setReference(m_shooterRpmTarget, CANSparkMax.ControlType.kVelocity);
+
+      System.out.println("setShooterSpeedbyRange(" + range.in(Meters) + ") = " + lookupByValue(range.in(Meters), m_shooterSpeedTable) + "FF = " + m_shooterPidFF);
     }
 
     
 
-    // set / get the shooter angle based on the target distance
-    public void setShooterAngleByMetersDistance(double distance) {
+    // set the shooter angle based on the target distance
+    //
+    // we don't actually do anything here since the 2024 robot has a fixed shooter angle so this is
+    // sort of "simulated"
+    public void setShooterAngleByRange(Measure<Distance> range) {
 
+      setShooterAngleDegrees(lookupByValue(range.in(Meters), m_shooterSpeedTable));
+
+      System.out.println("setShooterAngleByrange(" + range.in(Meters) + ") = " + lookupByValue(range.in(Meters), m_shooterAngleTable));
     }
 
 
 
-    private void setShooterDegreesAngle(double angle) {
+    private void setShooterAngleDegrees(double angle) {
 
-      m_shooterAngleDegreesTarget = lookupByValue(angle, m_shooterAngleTable);
+      m_shooterAngleDegreesTarget = angle;
     }
 
 
 
     private double getShooterAngleDegrees() {
 
-      return m_shooterAngleDegreesTarget + 0.1;      // we return the angle + .1 degrees - no mechanism is perfect
+      return m_shooterAngleDegreesTarget + 0.1;      // we return the angle + .1 degrees - no mechanism is perfect - this is
+                                                     // essentially "simulating" the shooter angle to be close to what we asked for
     }
 
 
 
     public boolean atShooterAngle() {
 
-      if (MathUtil.isNear(m_shooterAngleDegreesTarget, getShooterAngleDegrees(), m_shooterAngleDegreesTolerance)) {
-        return true;      // we're always at the angle for now
+      if (MathUtil.isNear(m_shooterAngleDegreesTarget, getShooterAngleDegrees(), ShooterConstants.kShooterAngleTolerance)) {
+        return true;
       }
       
       return false;
@@ -220,12 +233,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public boolean atShooterSpeed() {
 
-      if (MathUtil.isNear(m_shooterPidSetPoint, getShooterVelocity(), m_shooterRpmTolerance)) {
+      if (MathUtil.isNear(m_shooterRpmTarget, getShooterVelocity(), ShooterConstants.kShooterSpeedTolerance)) {
         return true;
       }
       
       return false;
-  }
+    }
 
 
 
@@ -283,30 +296,32 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command exampleMethodCommand() {
+    private double calcFfByRpm(double targetRpm) {
+
+      return (targetRpm / RobotConstants.kNeoMaxRpm) * ShooterConstants.kShooterFfRatio *
+             (RobotConstants.kRobotNomVoltage.in(Volts) / RobotController.getBatteryVoltage());
+    }
+
+
+  
+  public Command setShooterSpeedCommand(Measure<Distance> range) {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
         () -> {
-          /* one-time action goes here */
+          setShooterSpeedByRange(range);
         });
   }
 
 
 
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
+  public Command setShooterAngleCommand(Measure<Distance> range) {
+    // Inline construction of command goes here.
+    // Subsystem::RunOnce implicitly requires `this` subsystem.
+    return runOnce(
+        () -> {
+          setShooterAngleByRange(range);
+        });
   }
 
 
@@ -314,45 +329,6 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-
-    // read PID coefficients from SmartDashboard
-    m_shooterPidSetPoint  = SmartDashboard.getNumber("Shooter Set Point", 0);
-
-    double p   = SmartDashboard.getNumber("Shooter P Gain", 0);
-    double i   = SmartDashboard.getNumber("Shooter I Gain", 0);
-    double d   = SmartDashboard.getNumber("Shooter D Gain", 0);
-    double iz  = SmartDashboard.getNumber("Shooter I Zone", 0);
-    double ff  = SmartDashboard.getNumber("Shooter Feed Forward", 0);
-    double max = SmartDashboard.getNumber("Shooter Max Output", 0);
-    double min = SmartDashboard.getNumber("Shooter Min Output", 0);
-
-    // if PID coefficients on SmartDashboard have changed, write new values to controller
-    if((p != m_shooterPidP)) { m_shooterPidController.setP(p); m_shooterPidP = p; }
-
-    if((i != m_shooterPidI)) { m_shooterPidController.setI(i); m_shooterPidI = i; }
-
-    if((d != m_shooterPidD)) { m_shooterPidController.setD(d); m_shooterPidD = d; }
-
-    if((iz != m_shooterPidIzone)) { m_shooterPidController.setIZone(iz); m_shooterPidIzone = iz; }
-
-    if((ff != m_shooterPidFF)) { m_shooterPidController.setFF(ff); m_shooterPidFF = ff; }
-    
-    if((max != m_shooterPidOutputMax) || (min != m_shooterPidOutputMin)) { 
-      m_shooterPidController.setOutputRange(min, max); 
-      m_shooterPidOutputMin = min;
-      m_shooterPidOutputMax = max; 
-    }
-
-    m_shooterPidController.setReference(m_shooterPidSetPoint, CANSparkMax.ControlType.kVelocity);
-
-    SmartDashboard.putNumber("Shooter P Gain", p);
-    SmartDashboard.putNumber("Shooter I Gain", i);
-    SmartDashboard.putNumber("Shooter D Gain", d);
-    SmartDashboard.putNumber("Shooter I Zone", iz);
-    SmartDashboard.putNumber("Shooter Feed Forward", ff);
-    SmartDashboard.putNumber("Shooter Max Output", max);
-    SmartDashboard.putNumber("Shooter Min Output", min);
-    SmartDashboard.putNumber("Shooter Set Point", m_shooterPidSetPoint);
     SmartDashboard.putNumber("Shooter Actual RPM", Math.round(getShooterVelocity()));
   }
 
