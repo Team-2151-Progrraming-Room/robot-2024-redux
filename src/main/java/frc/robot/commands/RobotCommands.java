@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
 
-import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 
 

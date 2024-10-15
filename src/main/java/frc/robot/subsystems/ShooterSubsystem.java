@@ -1,10 +1,6 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.*;
 import edu.wpi.first.math.MathUtil;
-
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.RobotController;
 
 import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
@@ -12,7 +8,6 @@ import static edu.wpi.first.units.Units.*;
 
 // simulation-related
 
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
@@ -33,7 +28,6 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 // our robot constants
 
 import frc.robot.Robot;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
 
 
