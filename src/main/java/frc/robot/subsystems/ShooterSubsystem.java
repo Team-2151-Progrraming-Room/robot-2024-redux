@@ -247,6 +247,10 @@ public class ShooterSubsystem extends SubsystemBase {
     // values must be in increasing order in regards to the first value
     //
     // we use this to lookup speeds and angles based on distances
+    //
+    // this routine could get pretty smart - it could find a range in the table closest to the current range and use that or
+    // we could get even smarter and actually interpolate a speed or angle based on the spacing of the various values and
+    // calculate speeds or angles for the "in betweens"
     private double lookupByValue(double inValue, double[][] array) {
 
       int valueIndex = 0;
