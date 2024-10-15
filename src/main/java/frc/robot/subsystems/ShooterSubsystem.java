@@ -51,8 +51,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax m_kickerMotor  = new CANSparkMax(ShooterConstants.kKickerMotor_CANID,  MotorType.kBrushless);
 
     private SparkPIDController m_shooterPidController;
-    private double m_shooterPidFF = 0.0;
-    
+
     private RelativeEncoder m_shooterEncoder;
 
     // if we had a variable angled shooter, we'd probably handle it sort of like this
@@ -98,11 +97,13 @@ public class ShooterSubsystem extends SubsystemBase {
         m_shooterPidController.setP(ShooterConstants.kShooterPidP);
         m_shooterPidController.setI(ShooterConstants.kShooterPidI);
         m_shooterPidController.setD(ShooterConstants.kShooterPidD);
+        m_shooterPidController.setFF(ShooterConstants.kShooterPidFF);
         m_shooterPidController.setIZone(ShooterConstants.kShooterPidIzone);
         m_shooterPidController.setOutputRange(ShooterConstants.kShooterPidOutputMin, ShooterConstants.kShooterPidOutputMax);
         m_shooterPidController.setReference(m_shooterRpmTarget, CANSparkMax.ControlType.kVelocity);
 
-        // display PID coefficients on SmartDashboard
+
+        /* // display PID coefficients on SmartDashboard
         SmartDashboard.putNumber("Shooter Set Point", m_shooterRpmTarget);
         SmartDashboard.putNumber("Shooter Actual RPM", 0.0);
         SmartDashboard.putNumber("Shooter P Gain", ShooterConstants.kShooterPidP);
@@ -112,6 +113,7 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Shooter Feed Forward", ShooterConstants.kShooterPidFF);
         SmartDashboard.putNumber("Shooter Max Output", ShooterConstants.kShooterPidOutputMax);
         SmartDashboard.putNumber("Shooter Min Output", ShooterConstants.kShooterPidOutputMin);
+        */
 
         m_shooterEncoder = m_shooterMotor.getEncoder();
 
@@ -142,18 +144,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
       m_shooterRpmTarget = lookupByValue(range.in(Meters), m_shooterSpeedTable);
 
-      // for the FF factor, we take a look at the percentage the lookup take gave us compared to the NEO
-      // max speed (which would be a setting of 1.0) and take 90% of that as our feedforward
-      //
-      // we also take the robot voltage into account and adjust the ratio so we don't underspeed as the battery drops
-
-      m_shooterPidFF = calcFfByRpm(m_shooterRpmTarget);
-
-      // the code below should start the shooter spinning
-      m_shooterPidController.setFF(m_shooterPidFF);
       m_shooterPidController.setReference(m_shooterRpmTarget, CANSparkMax.ControlType.kVelocity);
 
-      System.out.println("setShooterSpeedbyRange(" + range.in(Meters) + ") = " + lookupByValue(range.in(Meters), m_shooterSpeedTable) + "FF = " + m_shooterPidFF);
+      System.out.println("setShooterSpeedbyRange(" + range.in(Meters) + ") = " + lookupByValue(range.in(Meters), m_shooterSpeedTable));
     }
 
     
@@ -197,29 +190,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
-    // set the shooter speed in RPM
-    //
-    // positive RPM means use the PID controller on the SparkMAX to set and maintain the target speed
-    //
-    // 0 means stop the shooter motor
-
-    private void setShooterSpeed(double speed) {      // only used internally
-
-     if (speed == 0) {
-        m_shooterMotor.stopMotor();
-        return;
-     }
-
-     m_shooterMotor.set(speed);
-    }
-
-
-
     // symmetry with the kickerMotorOff to cleanly end the shooting sequence command
 
     public void shooterMotorOff() {
 
-      setShooterSpeed(0.0);
+      m_shooterRpmTarget = 0.0;
+
+      m_shooterPidController.setReference(m_shooterRpmTarget, CANSparkMax.ControlType.kVelocity);
     }
 
 
@@ -242,7 +219,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
-    // we cvan handle the kicker speed here - once we know what it should be, we'll just set
+    // we can handle the kicker speed here - once we know what it should be, we'll just set
     // the constant and run it at that
 
     public void kickerMotorOn() {
@@ -256,6 +233,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
       m_kickerMotor.stopMotor();
     }
+
 
 
     // using the passed value, lookup and return the secondary value associated with it
@@ -296,36 +274,78 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
-    private double calcFfByRpm(double targetRpm) {
+  /* Commands *************************************************************************
+   ************************************************************************************/
 
-      return (targetRpm / RobotConstants.kNeoMaxRpm) * ShooterConstants.kShooterFfRatio *
-             (RobotConstants.kRobotNomVoltage.in(Volts) / RobotController.getBatteryVoltage());
-    }
-
-
-  
   public Command setShooterSpeedCommand(Measure<Distance> range) {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
         () -> {
-          setShooterSpeedByRange(range);
+          setShooterSpeedByRange(range);      // starts a PID controller for speed
         });
   }
 
 
 
   public Command setShooterAngleCommand(Measure<Distance> range) {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
+
     return runOnce(
         () -> {
-          setShooterAngleByRange(range);
+          setShooterAngleByRange(range);      // would start a PID controller for angle (if we could set the angle)
         });
   }
 
 
 
+  public Command kickerMotorOnCommand() {
+
+    return runOnce(
+        () -> {
+          kickerMotorOn();
+        });
+  }
+
+
+
+  public Command kickerMotorOffCommand() {
+
+    return runOnce(
+        () -> {
+          kickerMotorOff();
+        });
+  }
+
+
+
+  public Command shooterMotorOffCommand() {
+
+    return runOnce(
+        () -> {
+          shooterMotorOff();
+        });
+  }
+
+
+
+  public Command stabilizeShooterAngleCommand() {
+
+    return run(() -> atShooterAngle());
+  }
+  
+
+
+  public Command stabilizeShooterSpeedCommand() {
+
+    return run(() -> atShooterSpeed());
+  }
+  
+  
+
+
+  /* Periodics *******************************************************************************
+   *******************************************************************************************/
+  
   @Override
   public void periodic() {
 

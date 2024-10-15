@@ -243,46 +243,6 @@ public class DriveSubsystem extends SubsystemBase {
 
 
 
-  @Override
-  public void periodic() {
-
-    if ( ! Robot.isReal()) {
-
-      m_odometry.update(m_gyro.getRotation2d(),
-                        m_leftEncoder.getDistance(),
-                        m_rightEncoder.getDistance());
-
-      // show the robot on the fidl in its latest pose
-      m_field.setRobotPose(m_odometry.getPoseMeters());
-    }
-  }
-
-
-
-  @Override
-  public void simulationPeriodic() {
-
-    // the inclusion of robot voltage maps the -1 to 1 "speed" value into voltage which setInputs uses
-    // direction gets handled as part of the sign of the speed
-    m_diffDriveSim.setInputs(getLeftSpeed() * RobotController.getInputVoltage(),
-                             getRightSpeed() * RobotController.getInputVoltage()); // invert right side
-    
-    // Advance the model by 20 ms. Note that if you are running this
-    // subsystem in a separate thread or have changed the nominal timestep
-    // of TimedRobot, this value needs to match it.
-    m_diffDriveSim.update(0.02);
-
-    // Update all of our sensors.
-    m_leftEncoderSim.setDistance(m_diffDriveSim.getLeftPositionMeters());
-    m_leftEncoderSim.setRate(m_diffDriveSim.getLeftVelocityMetersPerSecond());
-
-    m_rightEncoderSim.setDistance(m_diffDriveSim.getRightPositionMeters());
-    m_rightEncoderSim.setRate(m_diffDriveSim.getRightVelocityMetersPerSecond());
-
-    m_gyroSim.setAngle(-m_diffDriveSim.getHeading().getDegrees());
-  }
-
-
 
   // be able to get the current speeds for logging and dashboard use
 
@@ -397,5 +357,49 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     return new Pose2d(x, y, rotation);  // return a new pose that keeps us on the field
+  }
+
+
+
+/* Periodics ************************************************************************************
+ ************************************************************************************************/
+
+  @Override
+  public void periodic() {
+
+    if ( ! Robot.isReal()) {
+
+      m_odometry.update(m_gyro.getRotation2d(),
+                        m_leftEncoder.getDistance(),
+                        m_rightEncoder.getDistance());
+
+      // show the robot on the fidl in its latest pose
+      m_field.setRobotPose(m_odometry.getPoseMeters());
+    }
+  }
+
+
+
+  @Override
+  public void simulationPeriodic() {
+
+    // the inclusion of robot voltage maps the -1 to 1 "speed" value into voltage which setInputs uses
+    // direction gets handled as part of the sign of the speed
+    m_diffDriveSim.setInputs(getLeftSpeed() * RobotController.getInputVoltage(),
+                             getRightSpeed() * RobotController.getInputVoltage()); // invert right side
+    
+    // Advance the model by 20 ms. Note that if you are running this
+    // subsystem in a separate thread or have changed the nominal timestep
+    // of TimedRobot, this value needs to match it.
+    m_diffDriveSim.update(0.02);
+
+    // Update all of our sensors.
+    m_leftEncoderSim.setDistance(m_diffDriveSim.getLeftPositionMeters());
+    m_leftEncoderSim.setRate(m_diffDriveSim.getLeftVelocityMetersPerSecond());
+
+    m_rightEncoderSim.setDistance(m_diffDriveSim.getRightPositionMeters());
+    m_rightEncoderSim.setRate(m_diffDriveSim.getRightVelocityMetersPerSecond());
+
+    m_gyroSim.setAngle(-m_diffDriveSim.getHeading().getDegrees());
   }
 }

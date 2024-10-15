@@ -96,15 +96,13 @@ public final class Constants {
     
     public static final int kKickerSpeed            = 500;
 
-    public static final double kShooterPidP         = 0.5;       // will need to be tuned
-    public static final double kShooterPidI         = 0.0;
+    public static final double kShooterPidP         = 0.00006;       // tuner as needed
+    public static final double kShooterPidI         = 0.0000005;
     public static final double kShooterPidD         = 0.0;
-    public static final double kShooterPidFF        = 0.0;
+    public static final double kShooterPidFF        = 0.00003;
     public static final double kShooterPidIzone     = 0.0;
     public static final double kShooterPidOutputMin = 0.0;       // don't need to run in reverse (negative value)
     public static final double kShooterPidOutputMax = 1.0;
-
-    public static final double kShooterFfRatio      = 0.9;       // used to calc FF for varying shooting speeds
 
     public static final double kShooterSpeedTolerance = 25.0;    // +/- tolerance in RPM
     public static final double kShooterAngleTolerance = 2.0;     // +/- tolerance in degrees
@@ -115,9 +113,9 @@ public final class Constants {
 
     // both of the below are timesouts for the shooting related commands
 
-    public static final Measure<Time> kShooterRunTime = Seconds.of(5);         // how long the shooter motor runs during the shooting sequence
+    public static final Measure<Time> kShooterStabilizeTime = Seconds.of(5);         // how long we wait for the shooter motor to get up to speed
 
-    public static final Measure<Time> kKickerRunTime  = Seconds.of(3);         // how long the kicker motor runs during the shooting sequence
+    public static final Measure<Time> kKickerRunTime        = Seconds.of(3);         // how long the kicker motor runs during the shooting sequence
 
   }
 
