@@ -17,26 +17,20 @@ import frc.robot.Constants.ShooterConstants;
 
 public class RobotCommands {
 
+  /*
   public static Command ShootCommand(ShooterSubsystem shooter, Measure<Distance> range) {
 
     return Commands.sequence(
               
-              Commands.parallel(
-                shooter.setShooterSpeedCommand(range),
-                shooter.setShooterAngleCommand(range)
-              ),
+              shooter.setShooterRangeCommand(range),
 
               Commands.parallel(
                 shooter.stabilizeShooterSpeedCommand(),
                 shooter.stabilizeShooterAngleCommand()
               ).withTimeout(ShooterConstants.kShooterStabilizeTime.in(Seconds)),
 
-              shooter.kickerMotorOnCommand(),
-
-              Commands.waitSeconds(ShooterConstants.kKickerRunTime.in(Seconds)),
-
-              shooter.shooterMotorOffCommand(),
-              shooter.kickerMotorOffCommand()
+              shooter.shootNoteCommand()
     );
   }
+  */
 }

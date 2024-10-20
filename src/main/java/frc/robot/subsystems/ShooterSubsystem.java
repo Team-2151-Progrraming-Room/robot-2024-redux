@@ -5,15 +5,12 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
 
-
-// simulation-related
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-
-
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.util.sendable.SendableBuilder;
 
 
 
@@ -67,13 +64,14 @@ public class ShooterSubsystem extends SubsystemBase {
     // all of this would need to be worked out emperically through actual robot testing to work out exactly how our
     // shooter works in terms of speds and angles for different distances
 
-    private double[][] m_shooterSpeedTable = { {5.0, 1000.0}, {7.5, 1500.0},          {9.5, 2000.0},              {ShooterConstants.kMaxShootRange.in(Meters), 2500.0} };
-    private double[][] m_shooterAngleTable = { {5.0, 45.0},   {7.5, 40}, {8.5, 35.0}, {9.5, 31.0}, {10.5, 28.0},  {ShooterConstants.kMaxShootRange.in(Meters), 25.0} };
+    private double[][] m_shooterSpeedTable = { {5.0, 1000.0}, {7.5, 1500.0},              {9.5, 2000.0},                {ShooterConstants.kMaxShootRange.in(Meters), 2500.0} };
+    private double[][] m_shooterAngleTable = { {5.0, 45.0},   {7.5, 40},     {8.5, 35.0}, {9.5, 31.0},   {10.5, 28.0},  {ShooterConstants.kMaxShootRange.in(Meters), 25.0} };
 
     private double m_shooterAngleDegreesTarget = 0.0;;
 
     private double m_shooterRpmTarget          = 0.0;
 
+    private Measure<Distance> m_targetRange = Meters.of(0.0);
 
 
 
@@ -95,7 +93,6 @@ public class ShooterSubsystem extends SubsystemBase {
         m_shooterPidController.setIZone(ShooterConstants.kShooterPidIzone);
         m_shooterPidController.setOutputRange(ShooterConstants.kShooterPidOutputMin, ShooterConstants.kShooterPidOutputMax);
         m_shooterPidController.setReference(m_shooterRpmTarget, CANSparkMax.ControlType.kVelocity);
-
 
         /* // display PID coefficients on SmartDashboard
         SmartDashboard.putNumber("Shooter Set Point", m_shooterRpmTarget);
@@ -126,6 +123,8 @@ public class ShooterSubsystem extends SubsystemBase {
     // but if we could set the angle, we'd probably do something like this
 
     public void setShooterRange(Measure<Distance> range) {
+
+      m_targetRange = range;
 
       setShooterSpeedByRange(range);
       setShooterAngleByRange(range);
@@ -230,6 +229,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
+  /* Utility Functions *************************************************************************
+   ************************************************************************************/
+
     // using the passed value, lookup and return the secondary value associated with it
     //
     // if the passed value is less than the first value in the array, return the value associated with the first value
@@ -245,6 +247,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // this routine could get pretty smart - it could find a range in the table closest to the current range and use that or
     // we could get even smarter and actually interpolate a speed or angle based on the spacing of the various values and
     // calculate speeds or angles for the "in betweens"
+
     private double lookupByValue(double inValue, double[][] array) {
 
       int valueIndex = 0;
@@ -272,8 +275,87 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
+    // this gets called from the periodic routine
+    //
+    // all dashboard updates happen here
+    //
+    // keeps periodic() cleaner
+
+    private void updateDashboard() {
+
+          SmartDashboard.putNumber("Shooter RPM", Math.round(getShooterVelocity()));
+          SmartDashboard.putNumber("Target RPM", Math.round(getShooterVelocity()));
+          SmartDashboard.putNumber("Shooter Angle", Math.round(getShooterAngleDegrees()));
+          SmartDashboard.putNumber("Target Angle", Math.round(getShooterVelocity()));
+          SmartDashboard.putNumber("Shooter Range", m_targetRange.in(Meters));
+          SmartDashboard.putNumber("Shooter Actual RPM", Math.round(getShooterVelocity()));
+          SmartDashboard.putBoolean("At Shooter Speed", atShooterSpeed());
+          SmartDashboard.putBoolean("At Shooter Angle", atShooterAngle());
+    }
+
+
+
   /* Commands *************************************************************************
    ************************************************************************************/
+
+  public Command ShootCommand(ShooterSubsystem shooter, Measure<Distance> range) {
+    return Commands.sequence(
+              
+    // right now we don't do any robot alignment to the target nor do we prevent the driver
+    // from moving the robot once it's aligned
+    //
+    // if we wanted a totally automated shooting sequence, we'd need to incorporate those aspects
+
+              setShooterByRangeCommand(range),
+
+              Commands.parallel(
+                stabilizeShooterSpeedCommand(),
+                stabilizeShooterAngleCommand()
+              ).withTimeout(ShooterConstants.kShooterStabilizeTime.in(Seconds)),
+
+              kickerMotorOnCommand(),
+
+              // for now, we're just letting the kicker run for some period of time
+              //
+              // all we want is to feed the note into the shooter so it actually gets launched
+              //
+              // doing this is generally fine but we could optimize this by watching the note sensor and only
+              // running it until the note clears the sensor (at which point we assume it has been launched)
+              //
+              // this would make this command slightly more responsive and not *have* to run for the entire
+              // kKickerRunTime period
+
+              Commands.waitSeconds(ShooterConstants.kKickerRunTime.in(Seconds)),
+
+              shooterMotorOffCommand(),
+              kickerMotorOffCommand()
+    );
+  }
+
+
+
+  public Command setShooterByRangeCommand(Measure<Distance> range) {
+
+    return Commands.parallel(
+      setShooterSpeedCommand(range),
+      setShooterAngleCommand(range)
+    );
+  }
+
+
+
+  public Command shootNoteCommand() {
+
+    return Commands.sequence(
+      kickerMotorOnCommand(),
+
+      Commands.waitSeconds(ShooterConstants.kKickerRunTime.in(Seconds)),
+
+      shooterMotorOffCommand(),
+      kickerMotorOffCommand()
+    );
+  }
+
 
   public Command setShooterSpeedCommand(Measure<Distance> range) {
     // Inline construction of command goes here.
@@ -347,13 +429,28 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    SmartDashboard.putNumber("Shooter Actual RPM", Math.round(getShooterVelocity()));
+    updateDashboard();
   }
 
 
 
   @Override
   public void simulationPeriodic() {
+
+  }
+
+
+
+/* Sendables ********************************************************************************
+ ********************************************************************************************/
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+
+    super.initSendable(builder);
+    // Publish the solenoid state to telemetry.
+    builder.addDoubleProperty("Shooter RPM (send)", () -> getShooterVelocity(), null);
+    builder.addDoubleProperty("Shooter Angle (send)", () -> getShooterAngleDegrees(), null); 
 
   }
 }

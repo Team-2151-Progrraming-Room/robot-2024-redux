@@ -7,13 +7,17 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.RobotCommands;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.units.*;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -30,6 +34,11 @@ public class RobotContainer {
   private final ShooterSubsystem m_shooter                = new ShooterSubsystem();
   
   public final CommandXboxController m_driverController   = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+
+  // public final RobotCommands m_robotCommands              = new RobotCommands();
+
+  public final VisionSubsystem m_vision                   = new VisionSubsystem();
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -65,6 +74,9 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+    m_driverController.y().onTrue(m_shooter.ShootCommand(m_shooter, m_vision.getRangeToTarget()));
+
   }
 
   /**

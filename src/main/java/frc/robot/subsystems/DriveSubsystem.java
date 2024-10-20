@@ -67,7 +67,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     // for now, just use the typical values for various jitters from the example in the doc - would measure this in real life using 'sysinfo' on the
     // actual robot as part of our characterization process (very important for auto path following to map a "perfect" theoretical robot into
-    // an actul robot that has internal friction and inertia)
+    // an actual robot that has internal friction and inertia)
 
     private final DifferentialDrivetrainSim m_diffDriveSim = new DifferentialDrivetrainSim(DCMotor.getNEO(DrivetrainConstants.kNumOfMotorsPerSide),
                                                                                            DrivetrainConstants.kDrivetrainGearRatio,
