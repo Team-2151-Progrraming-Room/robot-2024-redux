@@ -7,7 +7,6 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.RobotCommands;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
@@ -35,7 +34,6 @@ public class RobotContainer {
   
   public final CommandXboxController m_driverController   = new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
-  // public final RobotCommands m_robotCommands              = new RobotCommands();
 
   public final VisionSubsystem m_vision                   = new VisionSubsystem();
 
