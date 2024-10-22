@@ -116,7 +116,12 @@ public final class Constants {
     public static final Measure<Time> kShooterStabilizeTime = Seconds.of(5);         // how long we wait for the shooter motor to get up to speed
 
     public static final Measure<Time> kKickerRunTime        = Seconds.of(3);         // how long the kicker motor runs during the shooting sequence
-
   }
 
+
+
+   public static class ShooterAngleConstants {
+ 
+    public static final int kShooterAngleMotor_CANID      = 22;
+   }
 }
