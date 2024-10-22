@@ -40,7 +40,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Boolean isTargetWithinRange() {
 
-        double range = getRangeToTarget().in(Meters);
+        double range = getRangeToTarget();
         
         if (range >= ShooterConstants.kMinShootRange.in(Meters) && range <= ShooterConstants.kMaxShootRange.in(Meters)) {
             return true;
@@ -51,7 +51,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 
 
-    public Measure<Distance> getRangeToTarget() {
+    public double getRangeToTarget() {
 
         // for now we just generate a random range - when we have actual vision-based ranging, we'll pickup the
         // range to the target from the vision system (most likely through network tables entries)
@@ -63,7 +63,7 @@ public class VisionSubsystem extends SubsystemBase {
         //
         // we need to do this because the random() function returns a random double between 0.0 and 1.0
 
-        Measure<Distance> randomRange = Meters.of(Math.random() * (kMaxRange - kMinRange + 2 * kRangeTolerance) + (kMinRange - kRangeTolerance));
+        double randomRange = Math.random() * (kMaxRange - kMinRange + 2 * kRangeTolerance) + (kMinRange - kRangeTolerance);
 
         return randomRange;
     }  

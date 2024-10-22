@@ -28,6 +28,9 @@ import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants;
 
 
+import java.util.function.DoubleSupplier;
+
+
 
 // the first comment in the definition is picked up and displayed as information about this objecty when you
 // hover over it in the editor
@@ -71,7 +74,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private double m_shooterRpmTarget          = 0.0;
 
-    private Measure<Distance> m_targetRange = Meters.of(0.0);
+    private double m_targetRange               = 0.0;
 
 
 
@@ -122,7 +125,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // for the 2024 robot, this doesn't matter and won't really do anything in terms of shooting angle
     // but if we could set the angle, we'd probably do something like this
 
-    public void setShooterRange(Measure<Distance> range) {
+    public void setShooterRange(double range) {
 
       m_targetRange = range;
 
@@ -133,13 +136,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     // set the shooter speed based on the target distance
-    public void setShooterSpeedByRange(Measure<Distance> range) {
+    public void setShooterSpeedByRange(double range) {
 
-      m_shooterRpmTarget = lookupByValue(range.in(Meters), m_shooterSpeedTable);
+      System.out.println("setShooterSpeedbyRange(" + range + ") = " + lookupByValue(range, m_shooterSpeedTable));
+
+      m_shooterRpmTarget = lookupByValue(range, m_shooterSpeedTable);
 
       m_shooterPidController.setReference(m_shooterRpmTarget, CANSparkMax.ControlType.kVelocity);
-
-      System.out.println("setShooterSpeedbyRange(" + range.in(Meters) + ") = " + lookupByValue(range.in(Meters), m_shooterSpeedTable));
     }
 
     
@@ -148,11 +151,11 @@ public class ShooterSubsystem extends SubsystemBase {
     //
     // we don't actually do anything here since the 2024 robot has a fixed shooter angle so this is
     // sort of "simulated"
-    public void setShooterAngleByRange(Measure<Distance> range) {
+    public void setShooterAngleByRange(double range) {
 
-      setShooterAngleDegrees(lookupByValue(range.in(Meters), m_shooterSpeedTable));
+      System.out.println("setShooterAngleByrange(" + range + ") = " + lookupByValue(range, m_shooterAngleTable));
 
-      System.out.println("setShooterAngleByrange(" + range.in(Meters) + ") = " + lookupByValue(range.in(Meters), m_shooterAngleTable));
+      setShooterAngleDegrees(lookupByValue(range, m_shooterAngleTable));
     }
 
 
@@ -287,7 +290,7 @@ public class ShooterSubsystem extends SubsystemBase {
           SmartDashboard.putNumber("Target RPM", Math.round(getShooterVelocity()));
           SmartDashboard.putNumber("Shooter Angle", Math.round(getShooterAngleDegrees()));
           SmartDashboard.putNumber("Target Angle", Math.round(getShooterVelocity()));
-          SmartDashboard.putNumber("Shooter Range", m_targetRange.in(Meters));
+          SmartDashboard.putNumber("Shooter Range (meters)", m_targetRange);
           SmartDashboard.putNumber("Shooter Actual RPM", Math.round(getShooterVelocity()));
           SmartDashboard.putBoolean("At Shooter Speed", atShooterSpeed());
           SmartDashboard.putBoolean("At Shooter Angle", atShooterAngle());
@@ -298,7 +301,11 @@ public class ShooterSubsystem extends SubsystemBase {
   /* Commands *************************************************************************
    ************************************************************************************/
 
-  public Command ShootCommand(ShooterSubsystem shooter, Measure<Distance> range) {
+  public Command ShootCommand(ShooterSubsystem shooter, DoubleSupplier rangeSupplier) {
+    
+    
+    double range = rangeSupplier.getAsDouble();
+    
     return Commands.sequence(
               
     // right now we don't do any robot alignment to the target nor do we prevent the driver
@@ -306,13 +313,15 @@ public class ShooterSubsystem extends SubsystemBase {
     //
     // if we wanted a totally automated shooting sequence, we'd need to incorporate those aspects
 
+              setShooterSpeedCommand(range),
+/*
+
+              setShooterAngleCommand(range),
               setShooterByRangeCommand(range),
 
-              Commands.parallel(
-                stabilizeShooterSpeedCommand(),
-                stabilizeShooterAngleCommand()
-              ).withTimeout(ShooterConstants.kShooterStabilizeTime.in(Seconds)),
-
+              stabilizeShooterSpeedCommand(),
+              stabilizeShooterAngleCommand(),
+              
               kickerMotorOnCommand(),
 
               // for now, we're just letting the kicker run for some period of time
@@ -324,17 +333,18 @@ public class ShooterSubsystem extends SubsystemBase {
               //
               // this would make this command slightly more responsive and not *have* to run for the entire
               // kKickerRunTime period
-
-              Commands.waitSeconds(ShooterConstants.kKickerRunTime.in(Seconds)),
-
+    */
+              Commands.waitSeconds(ShooterConstants.kKickerRunTime.in(Seconds))
+    /*
               shooterMotorOffCommand(),
               kickerMotorOffCommand()
+    */
     );
   }
 
 
 
-  public Command setShooterByRangeCommand(Measure<Distance> range) {
+  public Command setShooterByRangeCommand(double range) {
 
     return Commands.parallel(
       setShooterSpeedCommand(range),
@@ -357,7 +367,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
 
-  public Command setShooterSpeedCommand(Measure<Distance> range) {
+  public Command setShooterSpeedCommand(double range) {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
@@ -368,7 +378,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
-  public Command setShooterAngleCommand(Measure<Distance> range) {
+  public Command setShooterAngleCommand(double range) {
 
     return runOnce(
         () -> {

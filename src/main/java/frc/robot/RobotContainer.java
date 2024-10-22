@@ -75,7 +75,7 @@ public class RobotContainer {
     // cancelling on release.
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-    m_driverController.y().onTrue(m_shooter.ShootCommand(m_shooter, m_vision.getRangeToTarget()));
+    m_driverController.y().onTrue(m_shooter.ShootCommand(m_shooter, () -> m_vision.getRangeToTarget()));
 
   }
 
