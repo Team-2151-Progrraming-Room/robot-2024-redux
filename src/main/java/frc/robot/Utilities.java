@@ -3,11 +3,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
 
-/**
- * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
- * you are doing, do not modify this file except to change the parameter class to the startRobot
- * call.
- */
+
+// utility functions that might be used on more than one place
+
 public class Utilities {
     
     // using the passed value, lookup and return the secondary value associated with it
@@ -32,17 +30,20 @@ public class Utilities {
       int valueIndex = 0;
       boolean found = false;
 
-      if (inValue <= array[0][0]) {                 // less than the first?
-        return array[0][1];
+      final int kLookupKey = 0;         // array indexes
+      final int kLookupValue = 1;
+
+      if (inValue <= array[0][kLookupKey]) {                 // less than the first?
+        return array[0][kLookupValue];                      // return the first value
       }
 
-      if (inValue >= array[array.length - 1][0]) {  // greater than the last?
-        return array[array.length - 1][1];
+      if (inValue >= array[array.length - 1][kLookupKey]) {  // greater than the last?
+        return array[array.length - 1][kLookupValue];        // return the last value
       }
 
       while (valueIndex < (array.length - 1) && ! found) {  // find it then
-        if (inValue >= array[valueIndex][0] && inValue < array[valueIndex + 1][0]) {
-          return array[valueIndex][1];
+        if (inValue >= array[valueIndex][kLookupKey] && inValue < array[valueIndex + 1][kLookupKey]) {
+          return array[valueIndex][kLookupValue];
         }
 
         valueIndex++;

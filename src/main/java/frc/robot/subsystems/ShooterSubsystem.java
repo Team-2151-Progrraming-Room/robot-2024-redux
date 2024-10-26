@@ -201,7 +201,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //
     // if we wanted a totally automated shooting sequence, we'd need to incorporate those aspects
 
-              setShooterSpeedCommand(range),
+              setShooterSpeedByRangeCommand(rangeSupplier),
 /*
 
               setShooterAngleCommand(range),
@@ -232,15 +232,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
-  public Command setShooterByRangeCommand(double range) {
-
-    return Commands.sequence(
-      setShooterSpeedCommand(range)
-    );
-  }
-
-
-
   public Command shootNoteCommand() {
 
     return Commands.sequence(
@@ -254,12 +245,12 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
 
-  public Command setShooterSpeedCommand(double range) {
+  public Command setShooterSpeedByRangeCommand(DoubleSupplier range) {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
         () -> {
-          setShooterSpeedByRange(range);      // starts a PID controller for speed
+          setShooterSpeedByRange(range.getAsDouble());      // starts a PID controller for speed
         });
   }
 

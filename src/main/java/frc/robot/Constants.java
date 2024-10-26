@@ -33,15 +33,21 @@ public final class Constants {
     public static final double kNeoMaxRpm = 5700;   // used for FF scaling for shooter and other applications
   }
 
+
+  
   public static class FieldConstants {
 
     public static final Measure<Distance> kFieldXMax = Feet.of(53).plus(Inches.of(3));         // length from alliance wall to alliance wall
     public static final Measure<Distance> kFieldYMax = Feet.of(26).plus(Inches.of(3));         // width of field
   }
 
+
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
+
 
   public static class DrivetrainConstants {
 
@@ -85,9 +91,13 @@ public final class Constants {
                                                                                                 // AndyMark E4T encoder
   }
 
+
+
   public static class IntakeConstants {
 
   }
+
+
 
   public static class ShooterConstants {
  

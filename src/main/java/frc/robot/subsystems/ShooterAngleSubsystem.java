@@ -89,6 +89,8 @@ public class ShooterAngleSubsystem extends SubsystemBase {
 
     public void setShooterAngleByRange(double range) {
 
+        m_targetRange = range;
+        
         System.out.println("setShooterAngleByrange(" + range + ") = " + Utilities.lookupByValue(range, m_shooterAngleTable));
   
         setShooterAngleDegrees(Utilities.lookupByValue(range, m_shooterAngleTable));
@@ -134,6 +136,31 @@ public class ShooterAngleSubsystem extends SubsystemBase {
           SmartDashboard.putBoolean("At Shooter Angle", atShooterAngle());
     }
 
+
+
+    /* Commands *************************************************************************
+     ************************************************************************************/
+
+
+
+
+  public Command setShooterAngleByRangeCommand(DoubleSupplier rangeSupplier) {
+
+    return runOnce(
+        () -> {
+          setShooterAngleByRange(rangeSupplier.getAsDouble());      // starts a PID controller for angle
+        });
+  }
+
+
+
+  public Command stabilizeShooterAngleCommand() {
+
+    return runOnce(
+        () -> {
+          atShooterAngle();      // are we at the angle we want yet?  (within tolerance of course)
+        });
+  }
 
 
   

@@ -7,8 +7,10 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ShooterAngleSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,6 +19,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
+import java.util.function.DoubleSupplier; 
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -26,16 +30,22 @@ import static edu.wpi.first.units.Units.*;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem       = new ExampleSubsystem();
+  private final ExampleSubsystem m_exampleSubsystem           = new ExampleSubsystem();
 
-  public  final DriveSubsystem m_drivetrainSubsystem      = new DriveSubsystem();
+  public  final DriveSubsystem m_drivetrainSubsystem          = new DriveSubsystem();
 
-  private final ShooterSubsystem m_shooter                = new ShooterSubsystem();
+  private final ShooterSubsystem m_shooterSubsystem           = new ShooterSubsystem();
+
+  private final ShooterAngleSubsystem m_shooterAngleSubsystem = new ShooterAngleSubsystem();
   
-  public final CommandXboxController m_driverController   = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  public final CommandXboxController m_driverController       = new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
+  public final VisionSubsystem m_vision                       = new VisionSubsystem();
 
-  public final VisionSubsystem m_vision                   = new VisionSubsystem();
+  DoubleSupplier m_dynamicRange                               = () -> m_vision.getRangeToTarget();
+
+  public final Command m_shootCommand                         = new ShootCommand(m_shooterSubsystem, m_shooterAngleSubsystem, m_dynamicRange).getShootCommand();
+
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -73,7 +83,10 @@ public class RobotContainer {
     // cancelling on release.
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-    m_driverController.y().onTrue(m_shooter.ShootCommand(m_shooter, () -> m_vision.getRangeToTarget()));
+
+    System.out.print("Binding shoot command...  ");
+    m_driverController.y().onTrue(m_shootCommand);
+    System.out.println("  ...done.");
 
   }
 
