@@ -143,8 +143,7 @@ public class ShooterAngleSubsystem extends SubsystemBase {
 
 
 
-
-  public Command setShooterAngleByRangeCommand(DoubleSupplier rangeSupplier) {
+     public Command setShooterAngleByRangeCommand(DoubleSupplier rangeSupplier) {
 
     return runOnce(
         () -> {
@@ -156,10 +155,7 @@ public class ShooterAngleSubsystem extends SubsystemBase {
 
   public Command stabilizeShooterAngleCommand() {
 
-    return runOnce(
-        () -> {
-          atShooterAngle();      // are we at the angle we want yet?  (within tolerance of course)
-        });
+    return run(() -> atShooterAngle());     // run until it returns true
   }
 
 

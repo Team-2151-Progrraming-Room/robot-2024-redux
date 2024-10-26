@@ -34,7 +34,7 @@ public final class Constants {
   }
 
 
-  
+
   public static class FieldConstants {
 
     public static final Measure<Distance> kFieldXMax = Feet.of(53).plus(Inches.of(3));         // length from alliance wall to alliance wall
@@ -123,9 +123,9 @@ public final class Constants {
 
     // both of the below are timesouts for the shooting related commands
 
-    public static final Measure<Time> kShooterStabilizeTime = Seconds.of(5);         // how long we wait for the shooter motor to get up to speed
+    public static final Measure<Time> kShooterStabilizeTime = Seconds.of(3);         // how long we wait for the shooter motor to get up to speed
 
-    public static final Measure<Time> kKickerRunTime        = Seconds.of(3);         // how long the kicker motor runs during the shooting sequence
+    public static final Measure<Time> kKickerRunTime        = Seconds.of(2);         // how long the kicker motor runs during the shooting sequence
   }
 
 
