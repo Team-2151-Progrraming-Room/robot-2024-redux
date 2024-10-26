@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
@@ -45,7 +44,7 @@ public class ShooterAngleSubsystem extends SubsystemBase {
     
     // private final CANSparkMax m_shooterAngleMotor = new CANSparkMax(ShooterAngleConstants.kShooterAngleMotor_CANID, MotorType.kBrushless);
 
-    private RelativeEncoder m_shooterAngleEncoder;
+    // private RelativeEncoder m_shooterAngleEncoder;
 
     // if we had a variable angled shooter, we'd probably handle it sort of like this
     //

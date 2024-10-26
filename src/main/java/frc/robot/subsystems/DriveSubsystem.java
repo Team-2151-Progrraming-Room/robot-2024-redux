@@ -38,7 +38,6 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.robot.Robot;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.DrivetrainConstants;
-import frc.robot.Constants.FieldConstants;
 
 
 
@@ -263,6 +262,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
 
+/* DISABLED AND NOT COMPILED FOR NOW
 
   // collision detection at the edge of the field
   //
@@ -342,6 +342,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     return new Pose2d(x, y, rotation);  // return a new pose that keeps us on the field
   }
+*/
 
 
 

@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 
-import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -189,49 +188,6 @@ public class ShooterSubsystem extends SubsystemBase {
   /* Commands *************************************************************************
    ************************************************************************************/
 
-  public Command ShootCommand(ShooterSubsystem shooter, DoubleSupplier rangeSupplier) {
-    
-    
-    double range = rangeSupplier.getAsDouble();
-    
-    return Commands.sequence(
-              
-    // right now we don't do any robot alignment to the target nor do we prevent the driver
-    // from moving the robot once it's aligned
-    //
-    // if we wanted a totally automated shooting sequence, we'd need to incorporate those aspects
-
-              setShooterSpeedByRangeCommand(rangeSupplier),
-/*
-
-              setShooterAngleCommand(range),
-              setShooterByRangeCommand(range),
-
-              stabilizeShooterSpeedCommand(),
-              stabilizeShooterAngleCommand(),
-              
-              kickerMotorOnCommand(),
-
-              // for now, we're just letting the kicker run for some period of time
-              //
-              // all we want is to feed the note into the shooter so it actually gets launched
-              //
-              // doing this is generally fine but we could optimize this by watching the note sensor and only
-              // running it until the note clears the sensor (at which point we assume it has been launched)
-              //
-              // this would make this command slightly more responsive and not *have* to run for the entire
-              // kKickerRunTime period
-    */
-              Commands.waitSeconds(ShooterConstants.kKickerRunTime.in(Seconds))
-    /*
-              shooterMotorOffCommand(),
-              kickerMotorOffCommand()
-    */
-    );
-  }
-
-
-
   public Command shootNoteCommand() {
 
     return Commands.sequence(
@@ -243,6 +199,7 @@ public class ShooterSubsystem extends SubsystemBase {
       kickerMotorOffCommand()
     );
   }
+
 
 
   public Command setShooterSpeedByRangeCommand(DoubleSupplier range) {

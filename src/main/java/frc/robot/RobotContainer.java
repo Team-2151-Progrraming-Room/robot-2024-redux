@@ -17,8 +17,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.units.*;
-import static edu.wpi.first.units.Units.*;
 import java.util.function.DoubleSupplier; 
 
 
@@ -83,10 +81,8 @@ public class RobotContainer {
     // cancelling on release.
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-
-    System.out.print("Binding shoot command...  ");
+    // schedule the shoot command when the Xbox controller's Y button is pressed
     m_driverController.y().onTrue(m_shootCommand);
-    System.out.println("  ...done.");
 
   }
 

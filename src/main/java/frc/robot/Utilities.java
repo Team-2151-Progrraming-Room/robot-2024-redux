@@ -1,7 +1,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.RobotBase;
 
 
 // utility functions that might be used on more than one place

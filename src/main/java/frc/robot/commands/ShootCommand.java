@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
@@ -13,7 +12,6 @@ import frc.robot.subsystems.ShooterAngleSubsystem;
 
 import frc.robot.Constants.ShooterConstants;
 
-import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.function.DoubleSupplier;
