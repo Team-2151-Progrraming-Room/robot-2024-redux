@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 
-import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,17 +14,17 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 
 // SparkMax imports - these come from REV Robotics
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+// import com.revrobotics.CANSparkMax;
+// import com.revrobotics.RelativeEncoder;
+// import com.revrobotics.SparkPIDController;
+// import com.revrobotics.CANSparkLowLevel.MotorType;
 
 
 // our robot constants
 
 import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.ShooterAngleConstants;
+// import frc.robot.Constants.ShooterAngleConstants;
 
 import frc.robot.Utilities;
 
@@ -90,9 +89,9 @@ public class ShooterAngleSubsystem extends SubsystemBase {
 
         m_targetRange = range;
         
-        System.out.println("setShooterAngleByrange(" + range + ") = " + Utilities.lookupByValue(range, m_shooterAngleTable));
+        System.out.println("setShooterAngleByrange(" + range + ") = " + Utilities.lookupByValue(m_targetRange, m_shooterAngleTable));
   
-        setShooterAngleDegrees(Utilities.lookupByValue(range, m_shooterAngleTable));
+        setShooterAngleDegrees(Utilities.lookupByValue(m_targetRange, m_shooterAngleTable));
     }
 
 
@@ -186,6 +185,7 @@ public class ShooterAngleSubsystem extends SubsystemBase {
     super.initSendable(builder);
 
     builder.addDoubleProperty("Shooter Angle (send)", () -> getShooterAngleDegrees(), null); 
+    builder.addBooleanProperty("At Shooter Angle (send)", () -> atShooterAngle(), null);
 
   }
 }
