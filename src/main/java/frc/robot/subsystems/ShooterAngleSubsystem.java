@@ -24,7 +24,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 
 import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants;
-// import frc.robot.Constants.ShooterAngleConstants;
+import frc.robot.Constants.ShooterAngleConstants;
 
 import frc.robot.Utilities;
 
@@ -105,15 +105,19 @@ public class ShooterAngleSubsystem extends SubsystemBase {
 
     private double getShooterAngleDegrees() {
 
-      return m_shooterAngleDegreesTarget + 0.1;      // we return the angle + .1 degrees - no mechanism is perfect - this is
-                                                     // essentially "simulating" the shooter angle to be close to what we asked for
+      // we return the angle + .1 degrees - no mechanism is perfect - this is essentially "simulating" 
+      // the shooter angle to be close to what we asked for now
+      //
+      // we take a fraction of the tolerance so if we adjust the tolerance value, we'll always be "in tolerance" - for now
+
+      return m_shooterAngleDegreesTarget + ShooterAngleConstants.kShooterAngleTolerance / 5.0;
     }
 
 
 
     public boolean atShooterAngle() {
 
-      if (MathUtil.isNear(m_shooterAngleDegreesTarget, getShooterAngleDegrees(), ShooterConstants.kShooterAngleTolerance)) {
+      if (MathUtil.isNear(m_shooterAngleDegreesTarget, getShooterAngleDegrees(), ShooterAngleConstants.kShooterAngleTolerance)) {
         return true;
       }
       
@@ -130,8 +134,6 @@ public class ShooterAngleSubsystem extends SubsystemBase {
 
     private void updateDashboard() {
 
-          SmartDashboard.putNumber("Shooter Angle", Math.round(getShooterAngleDegrees()));
-          SmartDashboard.putBoolean("At Shooter Angle", atShooterAngle());
     }
 
 
@@ -145,7 +147,7 @@ public class ShooterAngleSubsystem extends SubsystemBase {
 
     return runOnce(
         () -> {
-          setShooterAngleByRange(rangeSupplier.getAsDouble());      // starts a PID controller for angle
+          setShooterAngleByRange(rangeSupplier.getAsDouble());      // starts a PID controller for angle (or it would)
         });
   }
 
@@ -153,7 +155,7 @@ public class ShooterAngleSubsystem extends SubsystemBase {
 
   public Command stabilizeShooterAngleCommand() {
 
-    return run(() -> atShooterAngle());     // run until it returns true
+    return run(() -> atShooterAngle());     // run until it returns false
   }
 
 

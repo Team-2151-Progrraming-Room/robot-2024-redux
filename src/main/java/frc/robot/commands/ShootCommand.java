@@ -10,10 +10,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterAngleSubsystem;
 
-import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.*;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 
@@ -27,9 +28,16 @@ public class ShootCommand extends Command {
 
     DoubleSupplier          m_rangeSupplier;
 
-    public ShootCommand(ShooterSubsystem shooterSub, ShooterAngleSubsystem shooterAngleSub, DoubleSupplier rangeSupplier) {
+    BooleanSupplier         m_stabilizeShooterSpeedCheck;
+    BooleanSupplier         m_stabilizeShooterAngleCheck;
+
+    public ShootCommand(ShooterSubsystem shooterSub, ShooterAngleSubsystem shooterAngleSub,
+                        DoubleSupplier rangeSupplier, BooleanSupplier speedSupplier, BooleanSupplier angleSupplier) {
     
         m_rangeSupplier = rangeSupplier;            // the actual ranmging call gets made very late in the low level shooting routines
+
+        m_stabilizeShooterSpeedCheck = speedSupplier;
+        m_stabilizeShooterAngleCheck = angleSupplier;
 
         m_shooterSubsystem      = shooterSub;
         m_shooterAngleSubsystem = shooterAngleSub;
@@ -78,10 +86,10 @@ public class ShootCommand extends Command {
                 //
                 // right now the command just get cancelled when the timeout happens and the rest of the sequence continues
 
-                m_shooterSubsystem.stabilizeShooterSpeedCommand(),
-                m_shooterAngleSubsystem.stabilizeShooterAngleCommand()
+                Commands.waitSeconds(ShooterConstants.kShooterStabilizeTime.in(Seconds)).until(m_stabilizeShooterSpeedCheck),
+                Commands.waitSeconds(ShooterAngleConstants.kShooterAngleStabilizeTime.in(Seconds)).until(m_stabilizeShooterSpeedCheck)
 
-            ).withTimeout(ShooterConstants.kShooterStabilizeTime.in(Seconds)),
+            ),
             
             Commands.print("Stabilized"),
 

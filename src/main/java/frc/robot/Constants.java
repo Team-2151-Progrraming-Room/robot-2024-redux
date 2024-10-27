@@ -104,21 +104,38 @@ public final class Constants {
     public static final int kKickerMotor_CANID      = 20;
     public static final int kShooterMotor_CANID     = 21;
     
-    public static final int kKickerSpeed            = 500;
-
-    public static final double kShooterPidP         = 0.00006;       // tuner as needed
+    public static final double kShooterPidP         = 0.00006;   // tune as needed
     public static final double kShooterPidI         = 0.0000005;
     public static final double kShooterPidD         = 0.0;
-    public static final double kShooterPidFF        = 0.00003;
+    public static final double kShooterPidFF        = 0.00015;
     public static final double kShooterPidIzone     = 0.0;
     public static final double kShooterPidOutputMin = 0.0;       // don't need to run in reverse (negative value)
     public static final double kShooterPidOutputMax = 1.0;
 
+    // we just run the kicker at a fixed speed and not worry about it's exact RPM
+    //
+    // it's job is to shove the note into the more carefully controlled shooter mechanism
+    // from the loaded note position.  We can determine the appropriate speed from testing
+    //
+    // we should check this out carefully as we'll be "kicking" into a mechanism that
+    // is running at a different speed (most likely faster).  This will put some strain on
+    // the note because at some point it might be "dragged" through the kicker once it's
+    // been grabbed by the shooter.
+    // we'll just have to see how this works as we're talking about just an instantaneous
+    // event and not a prolonged situation
+    //
+    // for R&D purposes, we'll spin things at a more modest rate so as not to damage our
+    // test board for now
+
+    public static final double kKickerSpeed            = 0.25;   // actual motor percentage
+
+    public static final int kShooterMotorCurrentLimit = 40;      // amps
+    public static final int kKickerMotorCurrentLimit  = 40;
+
     public static final double kShooterSpeedTolerance = 25.0;    // +/- tolerance in RPM
-    public static final double kShooterAngleTolerance = 2.0;     // +/- tolerance in degrees
 
     public static final Measure<Distance> kMinShootRange = Meters.of(1.0);
-    public static final Measure<Distance> kMaxShootRange = Meters.of(12.0);
+    public static final Measure<Distance> kMaxShootRange = Meters.of(14.5);
 
 
     // both of the below are timesouts for the shooting related commands
@@ -132,6 +149,11 @@ public final class Constants {
 
    public static class ShooterAngleConstants {
  
-    public static final int kShooterAngleMotor_CANID      = 22;
+    public static final int kShooterAngleMotor_CANID  = 22;
+
+    public static final double kShooterAngleTolerance = 2.0;     // +/- tolerance in degrees
+
+    public static final Measure<Time> kShooterAngleStabilizeTime = Seconds.of(3);         // how long we wait for the shooter angle to get set
+
    }
 }

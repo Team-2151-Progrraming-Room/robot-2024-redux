@@ -15,9 +15,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 
 // SparkMax imports - these come from REV Robotics
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
+import com.revrobotics.*;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 
@@ -62,7 +60,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // all of this would need to be worked out emperically through actual robot testing to work out exactly how our
     // shooter works in terms of speeds and angles for different distances
 
-    private double[][] m_shooterSpeedTable = { {5.0, 1000.0}, {7.5, 1500.0}, {9.5, 2000.0}, {ShooterConstants.kMaxShootRange.in(Meters), 2500.0} };
+    private double[][] m_shooterSpeedTable = { {4.0, 750}, {5.5, 1000}, {7.0, 1400}, {9.5, 1800}, {11.0, 2200}, {ShooterConstants.kMaxShootRange.in(Meters), 2500} };
 
     private double m_shooterRpmTarget          = 0.0;
 
@@ -77,7 +75,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_shooterMotor.stopMotor();                     // just a safety thing - they should be stopped on instantiation
         m_kickerMotor.stopMotor();
-
+   
+        m_shooterMotor.setSmartCurrentLimit(ShooterConstants.kShooterMotorCurrentLimit);        
+        m_kickerMotor.setSmartCurrentLimit(ShooterConstants.kKickerMotorCurrentLimit);
 
         m_shooterPidController = m_shooterMotor.getPIDController();
 
@@ -88,18 +88,6 @@ public class ShooterSubsystem extends SubsystemBase {
         m_shooterPidController.setIZone(ShooterConstants.kShooterPidIzone);
         m_shooterPidController.setOutputRange(ShooterConstants.kShooterPidOutputMin, ShooterConstants.kShooterPidOutputMax);
         m_shooterPidController.setReference(m_shooterRpmTarget, CANSparkMax.ControlType.kVelocity);
-
-        /* // display PID coefficients on SmartDashboard
-        SmartDashboard.putNumber("Shooter Set Point", m_shooterRpmTarget);
-        SmartDashboard.putNumber("Shooter Actual RPM", 0.0);
-        SmartDashboard.putNumber("Shooter P Gain", ShooterConstants.kShooterPidP);
-        SmartDashboard.putNumber("Shooter I Gain", ShooterConstants.kShooterPidI);
-        SmartDashboard.putNumber("Shooter D Gain", ShooterConstants.kShooterPidD);
-        SmartDashboard.putNumber("Shooter I Zone", ShooterConstants.kShooterPidIzone);
-        SmartDashboard.putNumber("Shooter Feed Forward", ShooterConstants.kShooterPidFF);
-        SmartDashboard.putNumber("Shooter Max Output", ShooterConstants.kShooterPidOutputMax);
-        SmartDashboard.putNumber("Shooter Min Output", ShooterConstants.kShooterPidOutputMin);
-        */
 
         m_shooterEncoder = m_shooterMotor.getEncoder();
 
@@ -176,31 +164,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private void updateDashboard() {
 
-          SmartDashboard.putNumber("Shooter RPM", Math.round(getShooterVelocity()));
-          SmartDashboard.putNumber("Target RPM", Math.round(getShooterVelocity()));
-          SmartDashboard.putNumber("Shooter Range (meters)", m_targetRange);
-          SmartDashboard.putNumber("Shooter Actual RPM", Math.round(getShooterVelocity()));
-          SmartDashboard.putBoolean("At Shooter Speed", atShooterSpeed());
     }
 
 
 
   /* Commands *************************************************************************
    ************************************************************************************/
-
-  public Command shootNoteCommand() {
-
-    return Commands.sequence(
-      kickerMotorOnCommand(),
-
-      Commands.waitSeconds(ShooterConstants.kKickerRunTime.in(Seconds)),
-
-      shooterMotorOffCommand(),
-      kickerMotorOffCommand()
-    );
-  }
-
-
 
   public Command setShooterSpeedByRangeCommand(DoubleSupplier range) {
     // Inline construction of command goes here.
@@ -247,7 +216,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     return run(() -> atShooterSpeed());
   }
-  
   
 
 

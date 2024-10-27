@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.DoubleSupplier; 
+import java.util.function.BooleanSupplier; 
 
 
 /**
@@ -41,8 +42,11 @@ public class RobotContainer {
   public final VisionSubsystem m_vision                       = new VisionSubsystem();
 
   DoubleSupplier m_dynamicRange                               = () -> m_vision.getRangeToTarget();
+  BooleanSupplier m_dynamicAtShootSpeed                       = () -> m_shooterSubsystem.atShooterSpeed();
+  BooleanSupplier m_dynamicAtShootAngle                       = () -> m_shooterAngleSubsystem.atShooterAngle();
 
-  public final Command m_shootCommand                         = new ShootCommand(m_shooterSubsystem, m_shooterAngleSubsystem, m_dynamicRange).getShootCommand();
+  public final Command m_shootCommand                         = new ShootCommand(m_shooterSubsystem, m_shooterAngleSubsystem,
+                                                                                 m_dynamicRange, m_dynamicAtShootSpeed, m_dynamicAtShootAngle).getShootCommand();
 
 
 
