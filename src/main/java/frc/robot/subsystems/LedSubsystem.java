@@ -51,7 +51,7 @@ public class LedSubsystem extends SubsystemBase {
 
     public void setLedsOff() {
 
-        for (var i = 0 ; i < m_ledBuffer.getLength() ; i++) {
+        for (int i = 0 ; i < m_ledBuffer.getLength() ; i++) {
    
             m_ledBuffer.setRGB(i, 0, 0, 0);
         }
@@ -61,7 +61,7 @@ public class LedSubsystem extends SubsystemBase {
 
     public void setLedsWhite() {
 
-        for (var i = 0 ; i < m_ledBuffer.getLength() ; i++) {
+        for (int i = 0 ; i < m_ledBuffer.getLength() ; i++) {
    
             m_ledBuffer.setRGB(i, 180, 180, 180);
         }
@@ -71,7 +71,7 @@ public class LedSubsystem extends SubsystemBase {
 
     public void setLedsMaroon() {
 
-        for (var i = 0 ; i < m_ledBuffer.getLength() ; i++) {
+        for (int i = 0 ; i < m_ledBuffer.getLength() ; i++) {
    
             m_ledBuffer.setHSV(i, 2, 64, 22);       // determined with google colo picker at https://www.google.com/search?q=color+picker
         }
@@ -80,8 +80,12 @@ public class LedSubsystem extends SubsystemBase {
 
 
     public void setAllLedsRGB(int red, int green, int blue) {
- 
-        for (var i = 0 ; i < m_ledBuffer.getLength() ; i++) {
+
+/**
+ * sets all of the LEDs in the string to the same passed RGB colors
+ */ 
+
+        for (int i = 0 ; i < m_ledBuffer.getLength() ; i++) {
    
             m_ledBuffer.setRGB(i, red, green, blue);
         }
@@ -90,8 +94,12 @@ public class LedSubsystem extends SubsystemBase {
 
 
     public void setRangeLedsRGB(int index, int count, int red, int green, int blue) {
+
+/**
+ * sets a subset of the LEDs in the string to the same passed RGB colors starting at the 0-based index and setting count number of LEDs
+ */ 
  
-        for (var i = 0 ; i < count ; i++) {
+        for (int i = 0 ; i < count ; i++) {
    
             m_ledBuffer.setRGB(index + i, red, green, blue);
         }
@@ -100,6 +108,10 @@ public class LedSubsystem extends SubsystemBase {
 
 
     public void setLedRGB(int index, int red, int green, int blue) {
+
+/**
+ * sets a specific LED in the string based on the 0-based index to the same passed RGB colors
+ */ 
  
         m_ledBuffer.setRGB(index, red, green, blue);
     }
