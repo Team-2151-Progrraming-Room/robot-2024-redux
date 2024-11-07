@@ -48,6 +48,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 // our robot constants
 
+//These are classes within the constants file
 import frc.robot.Robot;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.DrivetrainConstants;
@@ -105,7 +106,7 @@ public class Drivetrain extends SubsystemBase {
     private AnalogGyro m_gyro       = new AnalogGyro(1);
     private AnalogGyroSim m_gyroSim = new AnalogGyroSim(m_gyro);
 
-    private Field2d m_field = new Field2d();
+    private Field2d m_field = new Field2d();//Creates a 2d field for simulation
 
     private DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(),
                                                                                  m_leftEncoder.getDistance(),

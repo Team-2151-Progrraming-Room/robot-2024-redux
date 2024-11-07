@@ -13,9 +13,6 @@ import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.subsystems.Drivetrain;
 
 
-//Commit 1
-//Pull 1
-
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
