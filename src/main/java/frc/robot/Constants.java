@@ -156,4 +156,13 @@ public final class Constants {
     public static final Measure<Time> kShooterAngleStabilizeTime = Seconds.of(3);         // how long we wait for the shooter angle to get set
 
    }
+
+
+
+   public static class LedConstants {
+
+    public static final int kNumOfLeds  = 15;
+
+    public static final int kLedPwmPort = 9;
+   }
 }

@@ -8,11 +8,13 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.LedBounceCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterAngleSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.LedSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -36,8 +38,11 @@ public class RobotContainer {
   private final ShooterSubsystem m_shooterSubsystem           = new ShooterSubsystem();
 
   private final ShooterAngleSubsystem m_shooterAngleSubsystem = new ShooterAngleSubsystem();
-  
+    
+  public final LedSubsystem m_ledSubsystem                    = new LedSubsystem();
+
   public final CommandXboxController m_driverController       = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+
 
   public final VisionSubsystem m_vision                       = new VisionSubsystem();
 
@@ -47,6 +52,8 @@ public class RobotContainer {
 
   public final Command m_shootCommand                         = new ShootCommand(m_shooterSubsystem, m_shooterAngleSubsystem,
                                                                                  m_dynamicRange, m_dynamicAtShootSpeed, m_dynamicAtShootAngle).getShootCommand();
+
+  public final Command m_ledBounceCommand                     = new LedBounceCommand(m_ledSubsystem);
 
 
 
@@ -62,6 +69,8 @@ public class RobotContainer {
                                                     m_driverController.getRightY(),
                                                     m_driverController.getRightX()),
                                                     m_drivetrainSubsystem));
+
+    m_ledSubsystem.setDefaultCommand(m_ledBounceCommand);
   }
 
   /**
