@@ -41,6 +41,8 @@ public class RobotContainer {
     
   public final LedSubsystem m_ledSubsystem                    = new LedSubsystem();
 
+  public final IntakeSubsystem m_intakeSubsystem              = new IntakeSubsystem();
+
   public final CommandXboxController m_driverController       = new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
 

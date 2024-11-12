@@ -95,6 +95,11 @@ public final class Constants {
 
   public static class IntakeConstants {
 
+    public static final int kIntakeMotor_CANID = 22;
+
+    public static final int kIntakeMotorCurrentLimit = 40;
+
+    public static final double lIntakeMotorSpeed = 0.25;
   }
 
 
