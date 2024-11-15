@@ -226,19 +226,6 @@ public class LedSubsystem extends SubsystemBase {
 
 
 
-   public Command LedIntakeCancelledCommand() {
-    /**
-     * Set the LEDs to the background color indicating the intake has been cancelled
-     */
-
-    return runOnce(
-        () -> {
-          setAllLedsHSV(LedConstants.kLedIntakeBackgroundH, LedConstants.kLedIntakeBackgroundS, LedConstants.kLedIntakeBackgroundV);
-        });
-  }
-
-
-
   public Command LedShootCommand() {
     /**
      * Set the LEDs to the shoot color
