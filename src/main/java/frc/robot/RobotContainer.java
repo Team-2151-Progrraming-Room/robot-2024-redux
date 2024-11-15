@@ -9,6 +9,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.LedBounceCommand;
+import frc.robot.commands.LedIntakeRunningCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterAngleSubsystem;
@@ -52,11 +53,16 @@ public class RobotContainer {
   DoubleSupplier m_dynamicRange                               = () -> m_vision.getRangeToTarget();
   BooleanSupplier m_dynamicAtShootSpeed                       = () -> m_shooterSubsystem.atShooterSpeed();
   BooleanSupplier m_dynamicAtShootAngle                       = () -> m_shooterAngleSubsystem.atShooterAngle();
+  BooleanSupplier m_preShootLedPattern                        = () -> m_ledSubsystem.ledPreShootSequence();
+  BooleanSupplier m_postShootLedPattern                       = () -> m_ledSubsystem.ledPostShootSequence();
 
-  public final Command m_shootCommand                         = new ShootCommand(m_shooterSubsystem, m_shooterAngleSubsystem,
-                                                                                 m_dynamicRange, m_dynamicAtShootSpeed, m_dynamicAtShootAngle).getShootCommand();
+  public final Command m_shootCommand                         = new ShootCommand(m_shooterSubsystem, m_shooterAngleSubsystem, m_ledSubsystem,
+                                                                                 m_dynamicRange, m_dynamicAtShootSpeed, m_dynamicAtShootAngle,
+                                                                                 m_preShootLedPattern, m_postShootLedPattern).getShootCommand();
 
   public final Command m_ledBounceCommand                     = new LedBounceCommand(m_ledSubsystem);
+  public final Command m_ledIntakeRunningCommand              = new LedIntakeRunningCommand(m_ledSubsystem);
+
 
 
 
