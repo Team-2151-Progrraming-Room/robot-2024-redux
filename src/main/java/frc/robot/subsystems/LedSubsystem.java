@@ -163,7 +163,7 @@ public class LedSubsystem extends SubsystemBase {
 
 
 
-    public boolean ledPostShootSequence() {
+    public void ledPostShootSequence() {
 
     /**
      * turns off one random LED each time through as part of the post shootiung LED sequence
@@ -172,8 +172,6 @@ public class LedSubsystem extends SubsystemBase {
         int offLed = (int)(Math.random() * LedConstants.kNumOfLeds);       // pick a random LED to turn off (0 to kNumOfLeds - 1)
 
         setLedHSV(offLed, LedConstants.kLedGeneralBackgroundH, LedConstants.kLedGeneralBackgroundS, LedConstants.kLedGeneralBackgroundV);
-
-        return false;       // this gets call from a wait(x).until() call with this being part of the until() decorator
     }
 
 
@@ -189,23 +187,23 @@ public class LedSubsystem extends SubsystemBase {
 
 
 
-    public boolean ledPreShootSequence() {
+    public void ledPreShootSequence() {
 
+        // we use the previously set range and hue
         setRangeLedsHSV(0, m_shootSpinupLedCount, m_shootSpinupCurrentHue, 255, 255);
 
-        m_shootSpinupCurrentHue -= m_hueStep;               // hue goes backwards from orange-ish to yellow red-ish
         m_shootSpinupLedCount   += m_offsetStep;
+        m_shootSpinupCurrentHue -= m_hueStep;               // hue goes backwards from orange-ish to yellow red-ish
 
-        // get setup for the next run
-        if (m_shootSpinupCurrentHue < LedConstants.kLedShooterSpinupEndH) {
-            m_shootSpinupCurrentHue = LedConstants.kLedShooterSpinupEndH;
-        }
-
+        // don't go past the end of the list
         if (m_shootSpinupLedCount > LedConstants.kNumOfLeds) {
             m_shootSpinupLedCount = LedConstants.kNumOfLeds;
         }
 
-        return false;               // keep it going until the timeout
+        // stop at our ending hue
+        if (m_shootSpinupCurrentHue < LedConstants.kLedShooterSpinupEndH) {
+            m_shootSpinupCurrentHue = LedConstants.kLedShooterSpinupEndH;
+        }
     }
 
 
@@ -228,19 +226,6 @@ public class LedSubsystem extends SubsystemBase {
 
 
 
-   public Command LedIntakeCancelledCommand() {
-    /**
-     * Set the LEDs to the background color indicating the intake has been cancelled
-     */
-
-    return runOnce(
-        () -> {
-          setAllLedsHSV(LedConstants.kLedIntakeBackgroundH, LedConstants.kLedIntakeBackgroundS, LedConstants.kLedIntakeBackgroundV);
-        });
-  }
-
-
-
   public Command LedShootCommand() {
     /**
      * Set the LEDs to the shoot color
@@ -249,19 +234,6 @@ public class LedSubsystem extends SubsystemBase {
     return runOnce(
         () -> {
           setAllLedsHSV(LedConstants.kLedShooterShotH, LedConstants.kLedShooterShotS, LedConstants.kLedShooterShotV);
-        });
-  }
-
-
-
-  public Command LedPostShootCleanupCommand() {
-    /**
-     * Set the LEDs to the post-shoot color
-     */
-
-    return runOnce(
-        () -> {
-          setAllLedsHSV(LedConstants.kLedShooterBackgroundH, LedConstants.kLedShooterBackgroundS, LedConstants.kLedShooterBackgroundV);
         });
   }
 
@@ -279,8 +251,32 @@ public class LedSubsystem extends SubsystemBase {
   }
 
 
-  
 
+  public Command LedPreShootCommand() {
+    /**
+     * runs the pre-shoot sequnce until cancelled
+     */
+
+     return run(
+             () -> {
+          ledPreShootSequence();
+        });
+  }
+
+
+
+  public Command LedPostShootCommand() {
+    /**
+     * cleans up from the shooting sequence until cancelled
+     */
+
+     return run(
+             () -> {
+          ledPostShootSequence();
+        });
+  }
+
+  
 
 /* Periodics ************************************************************************************
  ************************************************************************************************/

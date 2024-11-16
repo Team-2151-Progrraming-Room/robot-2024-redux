@@ -34,23 +34,16 @@ public class ShootCommand extends Command {
     BooleanSupplier         m_stabilizeShooterSpeedCheck;
     BooleanSupplier         m_stabilizeShooterAngleCheck;
 
-    BooleanSupplier         m_preShootLedPattern;
-    BooleanSupplier         m_postShootLedPattern;
-
 
 
     
     public ShootCommand(ShooterSubsystem shooterSub, ShooterAngleSubsystem shooterAngleSub, LedSubsystem ledSub,
-                        DoubleSupplier rangeSupplier, BooleanSupplier speedSupplier, BooleanSupplier angleSupplier,
-                        BooleanSupplier preShootLedPattern, BooleanSupplier postShootLedPattern) {
+                        DoubleSupplier rangeSupplier, BooleanSupplier speedSupplier, BooleanSupplier angleSupplier) {
     
         m_rangeSupplier = rangeSupplier;            // the actual ranmging call gets made very late in the low level shooting routines
 
         m_stabilizeShooterSpeedCheck = speedSupplier;
         m_stabilizeShooterAngleCheck = angleSupplier;
-
-        m_preShootLedPattern         = preShootLedPattern;
-        m_postShootLedPattern        = postShootLedPattern;
 
         m_shooterSubsystem      = shooterSub;
         m_shooterAngleSubsystem = shooterAngleSub;
@@ -72,10 +65,6 @@ public class ShootCommand extends Command {
         //
         // if we wanted a totally automated shooting sequence, we'd need to incorporate those aspects
 
-            Commands.print("Shooting sequence starting"),
-
-            Commands.print("Setting range..."),
-
             Commands.parallel(
                 // for each of the range-related commands, we pass the range supplier function which is called in the low level routines
                 // to get the range not at the time the command is created but when it is actually run
@@ -83,12 +72,6 @@ public class ShootCommand extends Command {
                 m_shooterSubsystem.setShooterSpeedByRangeCommand(m_rangeSupplier),
                 m_shooterAngleSubsystem.setShooterAngleByRangeCommand(m_rangeSupplier)
             ),
-
-            Commands.print("Ranges set"),
-
-            Commands.print("Stabilizing..."),
-
-            m_ledSubsystem.LedPreShootInitCommand(),               // get the LEDs ready for the pre-shoot sequence
 
             Commands.parallel(
 
@@ -110,17 +93,17 @@ public class ShootCommand extends Command {
                         Commands.waitSeconds(ShooterConstants.kShooterStabilizeTime.in(Seconds)).until(m_stabilizeShooterSpeedCheck),
                         Commands.waitSeconds(ShooterAngleConstants.kShooterAngleStabilizeTime.in(Seconds)).until(m_stabilizeShooterSpeedCheck)
                     ),
-                    Commands.waitSeconds(ShooterConstants.kShooterStabilizeTime.in(Seconds)).until(m_preShootLedPattern)
+                    Commands.sequence(
+                        m_ledSubsystem.LedPreShootInitCommand(),               // get the LEDs ready for the pre-shoot sequence
+                        m_ledSubsystem.LedPreShootCommand()
+                    )
+                    //Commands.waitSeconds(ShooterConstants.kShooterStabilizeTime.in(Seconds)).until(m_preShootLedPattern)
                 )
             ),
             
-            Commands.print("Stabilized"),
-
             m_ledSubsystem.LedShootCommand(),               // set the LEDs to indicate shooting
 
             m_shooterSubsystem.kickerMotorOnCommand(),
-
-            Commands.print("Kicking..."),
 
             // for now, we're just letting the kicker run for some period of time
             //
@@ -146,36 +129,20 @@ public class ShootCommand extends Command {
 
             Commands.waitSeconds(ShooterConstants.kKickerRunTime.in(Seconds)),
 
-            Commands.print("Note shot"),
-
-            Commands.print("Shutting down..."),
-
-            // for handling the post shooting LED pattern, we're doing something a little different
-            //
-            // we're trying to leverage as much of the command processing as we can and we also only want this
-            // processing to go on so long.  rather than handling timing or looping and other stuff in the routine to stop 
-            // the post LED light show, we're using the waitSeconds() method which will handle that for us.  we're using
-            // the .until decorator to actually call the routine to do the post shoot LED show which will get call at a rate of 50hz.
-            // this makes the LED handling very simple - no looping, no end condition - just pick and LED and turn it down.
-            //
-            // in this case, the .until() check always returns false so it keeps going until the wait time causes the
-            // command to end.
-            //
-            // this means we can do all of this with only a couple of lines of code reducing our memory footprint as well
-            // leveraging code in the library we are already using.
-
             Commands.parallel(
-                Commands.sequence(
-                    Commands.waitSeconds(LedConstants.kLedPostShootTime.in(Seconds)).until(m_postShootLedPattern),
-                    m_ledSubsystem.LedPostShootCleanupCommand()
-                ),
+
+                // cleanup from the shoot sequence
+                //
+                // we only run the cleanup routine for a certain amount of time and then exit
+                //
+                // no need for more LED cleanup since the default LED will take over after the last LED command (this one) completes
+                m_ledSubsystem.LedPostShootCommand().withTimeout(LedConstants.kLedPostShootTime.in(Seconds)),
+
                 Commands.sequence(
                     m_shooterSubsystem.shooterMotorOffCommand(),
                     m_shooterSubsystem.kickerMotorOffCommand()
                 )
-            ),
-
-            Commands.print("Shooting sequence completed")
+            )
 
             // at this point the motors for the shooter and the kicker would be off
             //
