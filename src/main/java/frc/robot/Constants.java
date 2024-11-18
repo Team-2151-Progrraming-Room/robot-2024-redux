@@ -99,7 +99,7 @@ public final class Constants {
 
     public static final int kIntakeMotorCurrentLimit = 40;
 
-    public static final double lIntakeMotorSpeed = 0.25;
+    public static final double kIntakeMotorSpeed = 0.25;
   }
 
 
@@ -184,11 +184,11 @@ public final class Constants {
     public static final int kLedBounceShadowS       = 255;
     public static final int kLedBounceShadowV       = 50;
 
-    public static final int kLedIntakePrimaryH      = 20;
+    public static final int kLedIntakePrimaryH      = 60;
     public static final int kLedIntakePrimaryS      = 255;
     public static final int kLedIntakePrimaryV      = 255;
 
-    public static final int kLedIntakeShadowH       = 20;
+    public static final int kLedIntakeShadowH       = 60;
     public static final int kLedIntakeShadowS       = 255;
     public static final int kLedIntakeShadowV       = 150;
 
