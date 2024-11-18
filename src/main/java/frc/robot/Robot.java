@@ -94,10 +94,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-
-    driveTheRobot();
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void testInit() {
@@ -120,12 +117,6 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationPeriodic() {
 
-    driveTheRobot(); // invoke the drive code from a real driverstaion during simulation
-  }
-
-
-  public void driveTheRobot() {
-
-    m_robotContainer.m_drivetrain.driveInputs(m_robotContainer.m_driverController);
+    //driveTheRobot(); // invoke the drive code from a real driverstaion during simulation
   }
 }

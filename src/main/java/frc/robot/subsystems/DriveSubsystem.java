@@ -1,48 +1,35 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.*;
 
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.units.*;
 import static edu.wpi.first.units.Units.*;
 
 
 // simulation-related
 
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotMotor;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.kinematics.Odometry;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N7;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 
 // SparkMax imports - these come from REV Robotics
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 
@@ -52,14 +39,13 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.robot.Robot;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.DrivetrainConstants;
-import frc.robot.Constants.FieldConstants;
 
 
 
 // the first comment in the definition is picked up and displayed as information about this objecty when you
 // hover over it in the editor
 
-public class Drivetrain extends SubsystemBase {
+public class DriveSubsystem extends SubsystemBase {
 
 /**
  * The Drivetrain subsystem provides all of the methods for driving the robot
@@ -81,7 +67,7 @@ public class Drivetrain extends SubsystemBase {
 
     // for now, just use the typical values for various jitters from the example in the doc - would measure this in real life using 'sysinfo' on the
     // actual robot as part of our characterization process (very important for auto path following to map a "perfect" theoretical robot into
-    // an actul robot that has internal friction and inertia)
+    // an actual robot that has internal friction and inertia)
 
     private final DifferentialDrivetrainSim m_diffDriveSim = new DifferentialDrivetrainSim(DCMotor.getNEO(DrivetrainConstants.kNumOfMotorsPerSide),
                                                                                            DrivetrainConstants.kDrivetrainGearRatio,
@@ -114,8 +100,6 @@ public class Drivetrain extends SubsystemBase {
                                                                                  // 1M from wall, midfield, pointing towards other alliance
                                                                                  new Pose2d(1.35, 5.55, new Rotation2d(Math.PI)));
 
-    private DifferentialDriveKinematics m_diffDriveKinematics = new DifferentialDriveKinematics(DrivetrainConstants.kDrivetrainTrack.in(Meters));
-
 
     private Rotation2d m_rotation      = new Rotation2d(0.0);                // simulation starting rotation - 0.0 is downfield to other alliance wall
 
@@ -126,7 +110,7 @@ public class Drivetrain extends SubsystemBase {
 
 
 
-    public Drivetrain() {
+    public DriveSubsystem() {
 
         // in general, it's a good idea to set the controller options to WHAT WE WANT
         //
@@ -190,9 +174,6 @@ public class Drivetrain extends SubsystemBase {
 
     public void drive(double val1, double val2, int driveType) {
 
-      // String output = "drive(" + val1 + ", " + val2 + ", " + driveType +")";
-      // System.out.println(output);
-
       switch(driveType) {
         
         case DrivetrainConstants.kDriveArcade:
@@ -246,74 +227,6 @@ public class Drivetrain extends SubsystemBase {
 
 
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
-  }
-
-
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
-
-
-
-  @Override
-  public void periodic() {
-
-    if ( ! Robot.isReal()) {
-
-      m_odometry.update(m_gyro.getRotation2d(),
-                        m_leftEncoder.getDistance(),
-                        m_rightEncoder.getDistance());
-
-      // show the robot on the fidl in its latest pose
-      m_field.setRobotPose(m_odometry.getPoseMeters());
-    }
-  }
-
-
-
-  @Override
-  public void simulationPeriodic() {
-
-    // the inclusion of robot voltage maps the -1 to 1 "speed" value into voltage which setInputs uses
-    // direction gets handled as part of the sign of the speed
-    m_diffDriveSim.setInputs(getLeftSpeed() * RobotController.getInputVoltage(),
-                             getRightSpeed() * RobotController.getInputVoltage()); // invert right side
-    
-    // Advance the model by 20 ms. Note that if you are running this
-    // subsystem in a separate thread or have changed the nominal timestep
-    // of TimedRobot, this value needs to match it.
-    m_diffDriveSim.update(0.02);
-
-    // Update all of our sensors.
-    m_leftEncoderSim.setDistance(m_diffDriveSim.getLeftPositionMeters());
-    m_leftEncoderSim.setRate(m_diffDriveSim.getLeftVelocityMetersPerSecond());
-
-    m_rightEncoderSim.setDistance(m_diffDriveSim.getRightPositionMeters());
-    m_rightEncoderSim.setRate(m_diffDriveSim.getRightVelocityMetersPerSecond());
-
-    m_gyroSim.setAngle(-m_diffDriveSim.getHeading().getDegrees());
-  }
-
-
 
   // be able to get the current speeds for logging and dashboard use
 
@@ -329,29 +242,20 @@ public class Drivetrain extends SubsystemBase {
   }
 
 
-  public void driveInputs(CommandXboxController controller) {
-
-    double leftY, rightX, rightY;   // we don't get leftX since none of the supported drive modes for now need it - saves a litle time
-
-    // we always need the leftY value so we'll get it unconditionally
-    //
-    // we only get the right values for the specific drive mode that needs them to save a little time
+  public void driveInputs(double leftY, double rightY, double rightX) {
     
-    leftY = -controller.getLeftY();     // invert since it returns negative for forward
+    leftY  *= -1;     // invert since it returns negative for forward
+    rightY *= -1;
 
     switch (DrivetrainConstants.kDriveType) {
 
       case DrivetrainConstants.kDriveArcade:    // both are handled the same
       case DrivetrainConstants.kDriveCurvature:
 
-        rightX = controller.getRightX();
-
         drive(leftY, rightX, DrivetrainConstants.kDriveType);
         break;
 
       case DrivetrainConstants.kDriveTank:
-
-        rightY = -controller.getRightY();   // invert
 
         drive(leftY, rightY, DrivetrainConstants.kDriveType);
         break;
@@ -359,6 +263,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
 
+/* DISABLED AND NOT COMPILED FOR NOW
 
   // collision detection at the edge of the field
   //
@@ -384,7 +289,9 @@ public class Drivetrain extends SubsystemBase {
   // robot on the field
   //
   // WARNING:  Every time a collision is detected, a new pose is returned which will need to be reaped by
-  // the garbage collector
+  // the garbage collector - in general, this approach doesn't seem like the best way and maybe we shoudl just not
+  // drive the robot off the field as there is more to it than just the pose - need to consider the impact on
+  // odometry for example - do we need to "back out" or otherwise adjust the odometry readings?
 
   private Pose2d collisionCheck(Pose2d inPose) {
 
@@ -435,5 +342,50 @@ public class Drivetrain extends SubsystemBase {
     }
 
     return new Pose2d(x, y, rotation);  // return a new pose that keeps us on the field
+  }
+*/
+
+
+
+/* Periodics ************************************************************************************
+ ************************************************************************************************/
+
+  @Override
+  public void periodic() {
+
+    if ( ! Robot.isReal()) {
+
+      m_odometry.update(m_gyro.getRotation2d(),
+                        m_leftEncoder.getDistance(),
+                        m_rightEncoder.getDistance());
+
+      // show the robot on the fidl in its latest pose
+      m_field.setRobotPose(m_odometry.getPoseMeters());
+    }
+  }
+
+
+
+  @Override
+  public void simulationPeriodic() {
+
+    // the inclusion of robot voltage maps the -1 to 1 "speed" value into voltage which setInputs uses
+    // direction gets handled as part of the sign of the speed
+    m_diffDriveSim.setInputs(getLeftSpeed() * RobotController.getInputVoltage(),
+                             getRightSpeed() * RobotController.getInputVoltage()); // invert right side
+    
+    // Advance the model by 20 ms. Note that if you are running this
+    // subsystem in a separate thread or have changed the nominal timestep
+    // of TimedRobot, this value needs to match it.
+    m_diffDriveSim.update(0.02);
+
+    // Update all of our sensors.
+    m_leftEncoderSim.setDistance(m_diffDriveSim.getLeftPositionMeters());
+    m_leftEncoderSim.setRate(m_diffDriveSim.getLeftVelocityMetersPerSecond());
+
+    m_rightEncoderSim.setDistance(m_diffDriveSim.getRightPositionMeters());
+    m_rightEncoderSim.setRate(m_diffDriveSim.getRightVelocityMetersPerSecond());
+
+    m_gyroSim.setAngle(-m_diffDriveSim.getHeading().getDegrees());
   }
 }

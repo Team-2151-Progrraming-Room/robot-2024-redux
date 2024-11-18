@@ -29,7 +29,11 @@ public final class Constants {
     public static final Measure<Distance> kBumperWidth = Inches.of(6);  // how think are the bumpers?
 
     public static final Measure<Voltage> kRobotNomVoltage = Volts.of(12.0);  // nominal voltage
+
+    public static final double kNeoMaxRpm = 5700;   // used for FF scaling for shooter and other applications
   }
+
+
 
   public static class FieldConstants {
 
@@ -37,9 +41,13 @@ public final class Constants {
     public static final Measure<Distance> kFieldYMax = Feet.of(26).plus(Inches.of(3));         // width of field
   }
 
+
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
+
 
   public static class DrivetrainConstants {
 
@@ -83,12 +91,117 @@ public final class Constants {
                                                                                                 // AndyMark E4T encoder
   }
 
+
+
   public static class IntakeConstants {
 
   }
 
+
+
   public static class ShooterConstants {
  
+    public static final int kKickerMotor_CANID      = 20;
+    public static final int kShooterMotor_CANID     = 21;
+    
+    public static final double kShooterPidP         = 0.00006;   // tune as needed
+    public static final double kShooterPidI         = 0.0000005;
+    public static final double kShooterPidD         = 0.0;
+    public static final double kShooterPidFF        = 0.00015;
+    public static final double kShooterPidIzone     = 0.0;
+    public static final double kShooterPidOutputMin = 0.0;       // don't need to run in reverse (negative value)
+    public static final double kShooterPidOutputMax = 1.0;
+
+    // we just run the kicker at a fixed speed and not worry about it's exact RPM
+    //
+    // it's job is to shove the note into the more carefully controlled shooter mechanism
+    // from the loaded note position.  We can determine the appropriate speed from testing
+    //
+    // we should check this out carefully as we'll be "kicking" into a mechanism that
+    // is running at a different speed (most likely faster).  This will put some strain on
+    // the note because at some point it might be "dragged" through the kicker once it's
+    // been grabbed by the shooter.
+    // we'll just have to see how this works as we're talking about just an instantaneous
+    // event and not a prolonged situation
+    //
+    // for R&D purposes, we'll spin things at a more modest rate so as not to damage our
+    // test board for now
+
+    public static final double kKickerSpeed            = 0.25;   // actual motor percentage
+
+    public static final int kShooterMotorCurrentLimit = 40;      // amps
+    public static final int kKickerMotorCurrentLimit  = 40;
+
+    public static final double kShooterSpeedTolerance = 25.0;    // +/- tolerance in RPM
+
+    public static final Measure<Distance> kMinShootRange = Meters.of(1.0);
+    public static final Measure<Distance> kMaxShootRange = Meters.of(14.5);
+
+
+    // both of the below are timesouts for the shooting related commands
+
+    public static final Measure<Time> kShooterStabilizeTime = Seconds.of(3);         // how long we wait for the shooter motor to get up to speed
+
+    public static final Measure<Time> kKickerRunTime        = Seconds.of(2);         // how long the kicker motor runs during the shooting sequence
   }
 
+
+
+   public static class ShooterAngleConstants {
+ 
+    public static final int kShooterAngleMotor_CANID  = 22;
+
+    public static final double kShooterAngleTolerance = 2.0;     // +/- tolerance in degrees
+
+    public static final Measure<Time> kShooterAngleStabilizeTime = Seconds.of(3);         // how long we wait for the shooter angle to get set
+   }
+
+
+
+   public static class LedConstants {
+
+    public static final int kNumOfLeds  = 15;
+
+    public static final int kLedPwmPort = 9;
+
+
+    public static final Measure<Time> kLedPostShootTime = Seconds.of(1.5);   // give it a while to finish randomly turning the LEDs off after shooting
+
+    public static final int kLedGeneralBackgroundH  = 20;
+    public static final int kLedGeneralBackgroundS  = 255;
+    public static final int kLedGeneralBackgroundV  = 20;
+
+    public static final int kLedBouncePrimaryH      = 145;
+    public static final int kLedBouncePrimaryS      = 255;
+    public static final int kLedBouncePrimaryV      = 255;
+
+    public static final int kLedBounceShadowH       = 145;
+    public static final int kLedBounceShadowS       = 255;
+    public static final int kLedBounceShadowV       = 50;
+
+    public static final int kLedIntakePrimaryH      = 20;
+    public static final int kLedIntakePrimaryS      = 255;
+    public static final int kLedIntakePrimaryV      = 255;
+
+    public static final int kLedIntakeShadowH       = 20;
+    public static final int kLedIntakeShadowS       = 255;
+    public static final int kLedIntakeShadowV       = 150;
+
+    public static final int kLedIntakeBackgroundH   = kLedGeneralBackgroundH;
+    public static final int kLedIntakeBackgroundS   = kLedGeneralBackgroundS;
+    public static final int kLedIntakeBackgroundV   = kLedGeneralBackgroundV;
+   
+    public static final int kLedShooterSpinupStartH  = 30;     // starts at this hue for shooter spinup
+    public static final int kLedShooterSpinupEndH    = 5;      // ends at this hue for shooter spinup and holds here until shot
+    public static final int kLedShooterSpinupS       = 255;
+    public static final int kLedShooterSpinupV       = 255;
+
+    public static final int kLedShooterShotH         = 0;      // color for when the shot happens
+    public static final int kLedShooterShotS         = 255;
+    public static final int kLedShooterShotV         = 255;
+
+    public static final int kLedShooterBackgroundH   = kLedGeneralBackgroundH;
+    public static final int kLedShooterBackgroundS   = kLedGeneralBackgroundS;
+    public static final int kLedShooterBackgroundV   = kLedGeneralBackgroundV;
+   }
 }
