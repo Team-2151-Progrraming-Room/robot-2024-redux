@@ -8,11 +8,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import frc.robot.Constants;
-import frc.robot.Constants.DrivetrainConstants;
-import frc.robot.subsystems.Drivetrain;
-
-
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
