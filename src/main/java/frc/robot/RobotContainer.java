@@ -53,12 +53,9 @@ public class RobotContainer {
   DoubleSupplier m_dynamicRange                               = () -> m_vision.getRangeToTarget();
   BooleanSupplier m_dynamicAtShootSpeed                       = () -> m_shooterSubsystem.atShooterSpeed();
   BooleanSupplier m_dynamicAtShootAngle                       = () -> m_shooterAngleSubsystem.atShooterAngle();
-  BooleanSupplier m_preShootLedPattern                        = () -> m_ledSubsystem.ledPreShootSequence();
-  BooleanSupplier m_postShootLedPattern                       = () -> m_ledSubsystem.ledPostShootSequence();
 
   public final Command m_shootCommand                         = new ShootCommand(m_shooterSubsystem, m_shooterAngleSubsystem, m_ledSubsystem,
-                                                                                 m_dynamicRange, m_dynamicAtShootSpeed, m_dynamicAtShootAngle,
-                                                                                 m_preShootLedPattern, m_postShootLedPattern).getShootCommand();
+                                                                                 m_dynamicRange, m_dynamicAtShootSpeed, m_dynamicAtShootAngle).getShootCommand();
 
   public final Command m_ledBounceCommand                     = new LedBounceCommand(m_ledSubsystem);
   public final Command m_ledIntakeRunningCommand              = new LedIntakeRunningCommand(m_ledSubsystem);
