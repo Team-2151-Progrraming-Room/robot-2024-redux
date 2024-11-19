@@ -77,7 +77,9 @@ public class RobotContainer {
   }
 
   /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
+   * Use this method to define your trigger->command mappings.
+   * 
+   * Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
    * predicate, or via the named factories in {@link
    * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
@@ -86,8 +88,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
