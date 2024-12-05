@@ -29,7 +29,11 @@ import java.util.function.DoubleSupplier;
 
 
 public class IntakeSubsystem extends SubsystemBase{
+
     private final CANSparkMax m_intakeMotor = new CANSparkMax(IntakeConstants.kIntakeMotor_CANID, MotorType.kBrushless);
+
+    //limit switch sensor that currently doesn't exist
+    private final DigitalInput gamepieceLoadedLimitSwitch = new DigitalInput(0);
 
     public IntakeSubsystem(){
         m_IntakeMotor.restoreFactoryDefaults();
@@ -47,6 +51,14 @@ public class IntakeSubsystem extends SubsystemBase{
       public void intakeMotorOff() {
   
         m_intakeMotor.stopMotor();
+      }
+
+      public boolean checkGamePieceLoaded(){
+        if (gamepieceLoadedLimitSwitch.get();) {
+          return true;
+        }
+        
+        return false;
       }
 
       private void updateDashboard(){
@@ -70,6 +82,11 @@ public class IntakeSubsystem extends SubsystemBase{
             () -> {
               intakeMotorOff();
             });
+      }
+
+      public Command checkGamePieceLoadedCommand() {
+
+        return run(() -> checkGamePieceLoaded());
       }
 
 

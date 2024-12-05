@@ -100,6 +100,7 @@ public final class Constants {
     public static final int kIntakeMotorCurrentLimit = 40;
 
     public static final double kIntakeMotorSpeed = 0.25;
+
   }
 
 

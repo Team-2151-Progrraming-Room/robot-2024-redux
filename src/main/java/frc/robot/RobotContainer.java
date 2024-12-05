@@ -60,6 +60,8 @@ public class RobotContainer {
   public final Command m_ledBounceCommand                     = new LedBounceCommand(m_ledSubsystem);
   public final Command m_ledIntakeRunningCommand              = new LedIntakeRunningCommand(m_ledSubsystem);
 
+  public final Command m_intakeCommand                        = new IntakeCommand(m_intakeSubSystem, m_ledSubSystem).getIntakeCommand();
+
 
 
 
@@ -103,7 +105,8 @@ public class RobotContainer {
     // schedule the shoot command when the Xbox controller's Y button is pressed
     m_driverController.y().onTrue(m_shootCommand);
 
-  }
+    // schedule the intake command when the Xbox controller's A button is pressed
+    m_driverController.a().whileTrue(m_IntakeCommand);
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
