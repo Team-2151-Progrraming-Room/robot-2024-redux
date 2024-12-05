@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.SpinInCircleCommand;
 import frc.robot.commands.LedBounceCommand;
 import frc.robot.commands.LedIntakeRunningCommand;
 import frc.robot.subsystems.DriveSubsystem;
@@ -57,6 +58,7 @@ public class RobotContainer {
   public final Command m_ledBounceCommand                     = new LedBounceCommand(m_ledSubsystem);
   public final Command m_ledIntakeRunningCommand              = new LedIntakeRunningCommand(m_ledSubsystem);
 
+  public final Command m_spinCommand                          = new SpinInCircleCommand(m_drivetrainSubsystem, -0.3);
 
 
 
@@ -99,12 +101,15 @@ public class RobotContainer {
 
     // schedule the shoot command when the Xbox controller's Y button is pressed
     m_driverController.y().onTrue(m_shootCommand);
-
+    
+    //Temporary button assignment.
+    //Don't think the spin command has any actual use so it will be removed later on,
+    //Daniel just wanted to practice writing a command and also have a change to demonstrate source control with.
+    m_driverController.x().whileTrue(m_spinCommand);
   }
-
+  
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
