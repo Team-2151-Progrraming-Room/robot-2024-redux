@@ -4,19 +4,23 @@
 
 package frc.robot;
 
+//Constants
 import frc.robot.Constants.OperatorConstants;
+//Command Imports
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.SpinInCircleCommand;
 import frc.robot.commands.LedBounceCommand;
 import frc.robot.commands.LedIntakeRunningCommand;
+//Subsystem Imports
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterAngleSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.LedSubsystem;
+//Misc
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
